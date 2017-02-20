@@ -1,62 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>es6-1 let,const,块级作用域</title>
-    <style type="text/css">
-        html,body{
-            font:16px "微软雅黑";
-            color:#333;
-        }
-        i{
-            color:#888;
-        }
-    </style>
 </head>
+
 <body>
     <script type="text/javascript">
+    /*
+     *
+     *  let
+     *
+     */
 
-        /*变量提升问题*/
-        //let 不存在变量提升
-        var a = 10;
-        function fn(){
-            console.log(a);
-            var a=15;
+    /*let例子*/
+    ! function() {
+        {
+            let a = 10;
+            var b = 1;
         }
-        fn();//undefined  函数作用域里面的a变量提升 所以还没有赋值 所以是undefined
+        // console.log(a); //报错:not defined; 因为只有在let所在代码块有效，所以就not defined
+        console.log(b);
+    }();
 
-        function fn0(){
-            console.log(a);
+    /*let，for对比*/
+    ! function() {
+        // for循环里面用var
+        var a = [];
+        for (var i = 0; i < 10; i++) {
+            a[i] = function() {
+                console.log(i);
+            };
+        }
+        a[6](); // 10 函数体是console.log(i)，当运行的时候i已经变成10
+
+        // for循环里面用let
+        var b = [];
+        for (let i = 0; i < 10; i++) {
+            b[i] = function() {
+                console.log(i);
+            };
+        }
+        b[6](); // 6
+
+        // for循环语句用var，循环体里面加函数
+        var c = [];
+        for (var i = 0; i < 10; i++) {
+            ! function(num) {
+                //var num = i;//实际运行
+                c[num] = function() {
+                    console.log(num);
+                };
+            }(i);
+        }
+        c[6](); // 6 闭包，i作为参数传入函数里面，i就会作为变量保存起来
+
+        for (let i = 0; i < 3; i++) {
+            let i = "a";
+            console.log(i);
+        } // "a" "a" "a"
+        //另外，for循环还有一个特别之处，就是循环语句部分是一个父作用域，而循环体内部是一个单独的子作用域。
+    }();
+
+
+    /*变量提升问题 let 不存在变量提升*/
+    ! function() {
+        var a = 10; // 先在函数作用域定义一个变量a并赋值。
+        // var声明
+        ! function() {
+            console.log(a); //undefined;  函数作用域里面的a变量提升 所以还没有赋值 所以是undefined，也因为变量提升了，所以不会读取父作用域的值。
+            var a = 15;
+        }();
+        // 无声明
+        ! function() {
+            console.log(a); //10; 函数作用域里面没有再次定义a 所以a是父作用域变量，读取父作用域的值
             a = 15;
-        }
-        fn0();//函数作用域里面没有定义a 所以a是全局变量
-
-        function fn1(){
+        }();
+        // let 声明
+        ! function() {
             console.log(a);
             let a = 15;
         }
-        // fn1();//报错 a is not defined ，由于let 不会变量提升所以a属于未定义先使用
+        // (); //报错 a is not defined ，由于let 不会变量提升所以a属于未定义先使用；并且由于let的暂定性死区，所以也不会读取父作用域的值。
 
-        function fn2(){
+        // js中可能发生的一些未定义报错，变量未定义，可以给它赋值（就会变成全局变量），但是不能使用，一但使用就会报错
+        ! function() {
             x = y;
             y = 12;
-            console.log({"x":x,"y":y});
+            console.log({
+                "x": x,
+                "y": y
+            });
         }
-        // fn2();//报错 y未定义由于有没有定义就是用x=y
-
-        function fn3(x,y){
+        // (); //报错 y未定义由于有没有定义就是用x = y
+        ! function(x, y) {
             x = y;
             y = 12;
-            console.log({"x":x,"y":y});
+            console.log({
+                "x": x,
+                "y": y
+            });
         }
-        fn3();//不会报错，由于y是参数，所以已经是定义了
+        (); //不会报错，由于y是参数，所以已经是定义了
+    }();
 
 
+    /*暂定性锁死*/
+    //暂定性锁死是es6才会出现的情况
+    ! function() {
 
-        /*暂定性锁死*/
-        //暂定性锁死是es6才会出现的情况
+        // 触发暂定性锁死，报错
+        ! function() {
+            var tmp = 123;
+            if (true) {
+                tmp = 'abc'; // 报错 ReferenceError
+                let tmp;
+            }
+        }
+        // ();
 
+        // let命令声明变量之前，变量都不可以使用
+        ! function() {
+            if (true) {
+                // TDZ开始
+                tmp = 'abc'; // ReferenceError
+                console.log(tmp); // ReferenceError
+                let tmp; // TDZ结束
+                console.log(tmp); // undefined
+                tmp = 123;
+                console.log(tmp); // 123
+            }
+        }
+        // ();
+
+    }();
     </script>
-
 </body>
+
 </html>
