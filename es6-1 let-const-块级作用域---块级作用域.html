@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>es6-1 let,const,块级作用域</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    /*
+     *
+     *  块级作用域
+     *
+     */
+    ! function() {
+        let n = 5;
+        if (true) {
+            let n = 10;
+        }
+        console.log(n); // 5
+    }();
+
+    // 任意嵌套
+    {
+        {
+            {
+                {
+                    {
+                        let insane = 'Hello World'
+                    }
+                }
+            }
+        }
+    };
+
+    // 外层作用域无法读取内层作用域的变量。
+    {
+        {
+            {
+                {
+                    {
+                        let insane = 'Hello World'
+                    }
+                    // console.log(insane); // 报错
+                }
+            }
+        }
+    };
+
+    // 内层作用域可以定义外层作用域的同名变量。
+    {
+        {
+            {
+                {
+                    let insane = 'Hello World'; {
+                        let insane = 'Hello World'
+                    }
+                }
+            }
+        }
+    };
+
+
+
+    // IIFE 写法
+    var tmp = "hi";
+    (function() {
+        var tmp = "hello";
+    }());
+    console.log(tmp);//hi
+
+    // 块级作用域写法
+    {
+        let tmp = "hello";
+    }
+    console.log(tmp);//hi
+    </script>
+</body>
+
+</html>

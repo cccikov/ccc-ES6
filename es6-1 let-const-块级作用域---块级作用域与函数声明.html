@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>es6-1 let,const,块级作用域与函数声明</title><script type="text/javascript"></script><link rel="stylesheet" type="text/css" href="">
+</head>
+
+<body>
+    <span></span><span></span>
+    <script type="text/javascript">
+    /*
+     *
+     *  块级作用域与函数声明
+     *
+     */
+
+    // ES5 规定，函数只能在顶层作用域和函数作用域之中声明，不能在块级作用域声明。
+    ! function() {
+
+        // 情况一
+        if (true) {
+            function f() {
+                console.log("wrong");
+            }
+        }
+
+        // 情况二
+        try {
+            function f() {
+                console.log("wrong");
+            }
+        } catch (e) {
+            function f2() {
+                console.log("wrong2");
+            }
+        }
+
+        /*
+         *  chrome55.0.2883.87 m  不报错
+         *  Firefox 50.1.0 不报错
+         *  ie11 不报错
+         *  ie10（es5环境）不报错
+         *  nodejs 6.10 不报错
+         */
+
+        // 上面两种函数声明，根据 ES5 的规定都是非法的。
+        // 但是，浏览器没有遵守这个规定，为了兼容以前的旧代码，还是支持在块级作用域之中声明函数，因此上面两种情况实际都能运行，不会报错。不过，“严格模式”下还是会报错。
+
+    }();
+
+
+    // 严格模式下
+    ! function() {
+        'use strict';
+        if (true) {
+            function f() {
+                console.log("wrong");
+            }
+        }
+
+        /*
+         *  chrome55.0.2883.87 m  不报错
+         *  Firefox 50.1.0 不报错
+         *  ie11 不报错
+         *  ie10（es5严格模式环境）报错：在 strict 模式下，函数声明无法嵌套在语句或块内。这些声明仅出现在顶级或直接出现在函数体内。意思就是：函数只能在顶层作用域和函数作用域之中声明，不能在块级作用域声明。
+         *  nodejs 6.10 不报错
+         */
+
+        // 因为chrome Firefox ie11都是支持es6语法：
+        // ES6 引入了块级作用域，明确允许在块级作用域之中声明函数
+
+
+    }();
+
+    // ES6 规定，块级作用域之中，函数声明语句的行为类似于let，在块级作用域之外不可引用。
+    ! function() {
+
+        function f() {
+            console.log('I am outside!');
+        }
+        (function() {
+            if (false) {
+                // 重复声明一次函数f
+                function f() {
+                    console.log('I am inside!');
+                }
+            }
+            f();
+        }());
+
+
+        /*
+         *  chrome55.0.2883.87 m  报错 f is not a function
+         *  Firefox 50.1.0 报错 f is not a function
+         *  ie11 报错 缺少对象
+         *  ie10 不报错 I am inside!
+         *  nodejs 6.10 f is not a function
+         */
+
+    }();
+    </script>
+</body>
+
+</html>
