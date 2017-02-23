@@ -7,7 +7,6 @@
 </head>
 
 <body>
-    <span></span><span></span>
     <script type="text/javascript">
     /*
      *
@@ -47,6 +46,8 @@
         // 上面两种函数声明，根据 ES5 的规定都是非法的。
         // 但是，浏览器没有遵守这个规定，为了兼容以前的旧代码，还是支持在块级作用域之中声明函数，因此上面两种情况实际都能运行，不会报错。不过，“严格模式”下还是会报错。
 
+        // 虽然没有报错，但是由于函数声明提前，如果遇到if false语句里面定义函数，它会因为函数声明提前而有这个函数呢，还是会以为false条件而已不执行而没有这个函数呢。实际发现不同浏览器的处理是不一样的。所以在es5环境下还是不要在块级作用域里面声明函数。例子见：函数function.html
+
     }();
 
 
@@ -67,15 +68,27 @@
          *  nodejs 6.10 不报错
          */
 
-        // 因为chrome Firefox ie11都是支持es6语法：
+        // es5严格模式下还是按照规定，不允许在快自己作用域声明函数
+        // chrome Firefox ie11都是支持es6语法，所以不报错
         // ES6 引入了块级作用域，明确允许在块级作用域之中声明函数
 
 
     }();
 
-    // ES6 规定，块级作用域之中，函数声明语句的行为类似于let，在块级作用域之外不可引用。
-    ! function() {
 
+
+
+
+
+
+
+
+
+
+	// ES6 引入了块级作用域，明确允许在块级作用域之中声明函数
+    // ES6 规定，块级作用域之中，函数声明语句的行为类似于let，在块级作用域之外不可引用。
+
+    ! function() {
         function f() {
             console.log('I am outside!');
         }
@@ -89,16 +102,129 @@
             f();
         }());
 
-
         /*
          *  chrome55.0.2883.87 m  报错 f is not a function
          *  Firefox 50.1.0 报错 f is not a function
          *  ie11 报错 缺少对象
          *  ie10 不报错 I am inside!
-         *  nodejs 6.10 f is not a function
+         *  nodejs 6.10 报错 f is not a function
+         */
+
+        // 原来，ES6 改变了块级作用域内声明的函数的处理规则，显然会对老代码产生很大影响。为了减轻因此产生的不兼容问题，ES6在附录B里面规定，浏览器的实现可以不遵守上面的规定，有自己的行为方式。
+
+        // 允许在块级作用域内声明函数。
+        // 函数声明类似于var，即会提升到全局作用域或函数作用域的头部。
+        // 同时，函数声明还会提升到所在的块级作用域的头部。
+
+    }();
+
+    // 严格模式下
+    ! function() {
+
+        'use strict'
+        function f() {
+            console.log('I am outside!');
+        }
+        (function() {
+            if (false) {
+                // 重复声明一次函数f
+                function f() {
+                    console.log('I am inside!');
+                }
+            }
+            f();
+        }());
+
+        /*
+         *  chrome55.0.2883.87 m  不报错 I am outside!
+         *  Firefox 50.1.0 不报错 I am outside!
+         *  ie11 不报错 I am outside!
+         *  ie10 报错 在 strict 模式下，函数声明无法嵌套在语句或块内。这些声明仅出现在顶级或直接出现在函数体内。
+         *  nodejs 6.10 不报错 I am outside!
          */
 
     }();
+
+    // 上述是这样运行的
+    ;
+    (function() {
+
+
+        ! function() {
+
+            // es5 非严格模式下
+            function f() {
+                console.log('I am outside!');
+            }
+            (function() {
+                function f() {
+                    console.log('I am inside!');
+                }
+                if (false) {}
+                f();
+            }());
+
+        }();
+
+		// es5 严格模式下是非法的
+
+        ! function() {
+
+            // es6 浏览器，
+            function f() {
+                console.log('I am outside!');
+            }
+            (function() {
+                var f = undefined;
+                if (false) {
+                    function f() {
+                        console.log('I am inside!');
+                    }
+                }
+
+                f();
+            }());
+
+            // 允许在块级作用域内声明函数。
+            // 函数声明类似于var，即会提升到全局作用域或函数作用域的头部。
+            // 同时，函数声明还会提升到所在的块级作用域的头部。
+
+        }();
+
+
+        ! function() {
+
+            // es6 浏览器 严格模式 ； 真正es6规定环境
+            function f() {
+                console.log('I am outside!');
+            }
+            (function() {
+                f();
+            }());
+
+        }();
+
+
+
+
+
+        // ES6 的块级作用域允许声明函数的规则，只在使用大括号的情况下成立，如果没有使用大括号，就会报错。
+        !function(){
+
+            // 不报错
+            'use strict';
+            if (true) {
+              function f() {}
+            }
+
+            // 报错
+            'use strict';
+            if (true)
+                function f() {}
+            // In strict mode code, functions can only be declared at top level or inside a block.
+        }();
+
+    })();
     </script>
 </body>
 
