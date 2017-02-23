@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <style type="text/css">
+    table {
+        margin: 50px;
+        border-collapse: collapse;
+        color: #333;
+        font: 14px/1.5em -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        ;
+        border: 1px solid #eaeaea;
+    }
+
+    tr {
+        border-bottom: #eaeaea;
+    }
+
+    td {
+        line-height: 1.5em;
+        height: 3em;
+        padding: 0 1.5em;
+        vertical-align: middle;
+    }
+
+    td:nth-child(1) {
+        min-width: 6em;
+    }
+
+    td:nth-child(2) {
+        /*min-width: 102px;*/
+    }
+
+    img {
+        vertical-align: middle;
+        margin: -4px 0 0;
+    }
+
+    .danger {
+        color: #d9534f;
+    }
+
+    .success {
+        color: #5cb85c;
+    }
+    </style>
+    <table>
+        <tr>
+            <td>理论上</td>
+            <td>es6</td>
+            <td><img src="success.png"></td>
+            <td class="success">ES6 规定，块级作用域之中，函数声明语句的行为类似于let，在块级作用域之外不可引用。</td>
+        </tr>
+        <tr>
+            <td>实际上</td>
+            <td>es6</td>
+            <td><img src="danger.png"></td>
+            <td class="danger">ES6浏览器环境，为了兼容性考虑，函数声明类似于var，会提升到全局作用域或函数作用域的头部</td>
+        </tr>
+        <tr>
+            <td>es6严格模式</td>
+            <td>es6</td>
+            <td><img src="success.png"></td>
+            <td class="success">ES6严格模式下遵守ES6规定</td>
+        </tr>
+    </table>
+    <hr>
+    <table>
+        <tr>
+            <td>chrome</td>
+            <td>55.0.2883.87 m</td>
+            <td>es6</td>
+            <td><img src="success.png"></td>
+            <td class="success">I am outside!</td>
+        </tr>
+        <tr>
+            <td>Firefox</td>
+            <td>50.1.0</td>
+            <td>es6</td>
+            <td><img src="success.png"></td>
+            <td class="success">I am outside!</td>
+        </tr>
+        <tr>
+            <td>ie</td>
+            <td>ie11</td>
+            <td>es6</td>
+            <td><img src="success.png"></td>
+            <td class="success">I am outside!</td>
+        </tr>
+        <tr>
+            <td>ie</td>
+            <td>ie10</td>
+            <td>es5</td>
+            <td><img src="danger.png"></td>
+            <td class="danger">在 strict 模式下，函数声明无法嵌套在语句或块内。这些声明仅出现在顶级或直接出现在函数体内。</td>
+        </tr>
+        <tr>
+            <td>nodejs</td>
+            <td>6.10</td>
+            <td>es6</td>
+            <td><img src="success.png"></td>
+            <td class="success">I am outside!</td>
+        </tr>
+    </table>
+</body>
+
+</html>
