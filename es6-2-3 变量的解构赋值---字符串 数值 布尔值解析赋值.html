@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>变量的解构赋值---字符串,布尔值,数值解析赋值</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    // 字符串解构
+    {
+        // 字符串也可以解构赋值。这是因为此时，字符串被转换成了一个类似数组的对象。
+        let [a, b, c, d] = "hello";
+        console.log(a, b, c, d); //h e l l
+
+        // 类似数组的对象都有一个length属性，因此还可以对这个属性解构赋值。
+        let {length: len} = 'hello';
+        //length 对应 ("hello").length ; len 对应 ("hello").length 的值
+        console.log(len) // 5
+    }
+
+    // 数值和布尔值的解构
+    {
+        // 解构赋值时，如果等号右边是数值和布尔值，则会先转为对象。
+        let {toString: a} = 123;
+        console.log(a === Number.prototype.toString); // true
+        console.log(a === (123).toString); // true
+        // a 就对应 Number对象里面的方法
+
+        let {toString: b} = true;
+        console.log(b === Boolean.prototype.toString) // true
+    }
+    </script>
+</body>
+
+</html>

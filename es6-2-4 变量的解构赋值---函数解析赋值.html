@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>变量的解构赋值---函数解析赋值</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    // 函数解构例子
+    {
+        function add([x,y]){
+            return x + y;
+        }
+        console.log(add([1,2]))//3
+
+        // 可以理解为
+        function add2(arr){
+            var x = arr[0];
+            var y = arr[1];
+            return x + y;
+        }
+        console.log(add2([1,2]))//3
+
+
+        let a = [[1, 2], [3, 4]].map(([a, b]) => a + b);// => 为ES6 箭头函数
+        console.log(a);//[3, 7]
+
+        // 可以理解为
+        let b = [[1,2],[3,4]].map(function(arr){
+            var a = arr[0];
+            var b = arr[1];
+            return a + b
+        });
+        console.log(b);//[3, 7]
+    }
+
+    // 函数参数的解构也可以使用默认值。
+    {
+        // 为x,y设定默认值
+        function move({x = 0, y = 0} = {}) {
+          return [x, y];
+        }
+
+        console.log(move({x: 3, y: 8})); // [3, 8]
+        console.log(move({x: 3})); // [3, 0]
+        console.log(move({})); // [0, 0]
+        console.log(move()); // [0, 0]
+    }{
+        // 为函数设定默认参数为{ x: 0, y: 0 } 而不是为为x,y设定默认值;所以只要有参数传进来都会忽略{ x: 0, y: 0 }
+        function move({x, y} = { x: 0, y: 0 }) {
+          return [x, y];
+        }
+
+        console.log(move({x: 3, y: 8})); // [3, 8]
+        console.log(move({x: 3})); // [3, undefined]
+        console.log(move({})); // [undefined, undefined]
+        console.log(move()); // [0, 0]
+        //
+    }
+
+    </script>
+</body>
+
+</html>
