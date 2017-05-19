@@ -8,7 +8,9 @@
 
 <body>
     <script type="text/javascript">
-        // 解构不仅可以用于数组，还可以用于对象
+        /**
+         * 解构不仅可以用于数组，还可以用于对象
+         */
         {
             let {foo, bar} = { foo: "aaa", bar: "bbb" };
             console.log(foo,bar);// "aaa" "bbb"
@@ -18,15 +20,103 @@
              * let { "foo": foo, "bar": bar } = { "foo": "aaa", "bar": "bbb" };
             */
             // 简写要符合 变量名与属性名 一致
-
-
+        }
+        {
             // 当变量名与属性名不一致
             let { foo : str } = { foo: "aaa", bar: "bbb" };
             console.log(str);
 
             // 也就是说，对象的解构赋值的内部机制，是先找到同名属性，然后再赋给对应的变量。真正被赋值的是后者，而不是前者
+
+            let {foo:real,bar} = {foo:"我是真正赋值的值"}
+            console.log(real,bar);//我是真正赋值的值,undefined
+            // console.log(foo);//foo is not defined 未定义
+            // 定义了real并赋值,定义了bar没有赋值,而foo只是作为一个解构时对应用的属性名而已，在解构中叫做“模式”吧。
+        }
+
+        /**
+         * 嵌套赋值
+         */
+        {
+            let node = {
+              loc: {
+                start: {
+                  line: 1,
+                  column: 5
+                }
+              }
+            };
+            let {loc:{start:{line,column:num}}} = node;
+            console.log(line,num);//其实这里只有line,num有被赋值
+            // console.log(loc)
+            // console.log(start)
+            // console.log(column)
+            // 而loc start column都是模式
+        }{
+            // 另一种嵌套赋值
+            let obj = {};
+            let arr = [,2];
+            ({ foo: obj.prop, bar: arr[0] } = { foo: 123, bar: true });
+            console.log(obj,arr);// {prop: 123} [true, 2]   obj.prop = 123  arr[0] = true
+        }
+
+        /**
+         * 对象解构默认值
+         */
+        {
+            let {x,y:z=10} = {x:5};
+            console.log(x,z);//5 10
+            // console.log(y);// y is not defined y是模式
+            // 默认值生效的条件是，对象的属性值严格等于undefined。
+
+            let {a=5} ={a:null};
+            console.log(a);//null null不是严格全等于undefined
+        }
+
+        /**
+         * 其他小问题，容易错误的地方
+         */
+        {
+            // 错误
+
+            // let foo;
+            // let {foo} = {foo:1};
+            // 报错,let重复声明foo
+        }{
+            // 改法
+
+            let foo;
+            ({foo} = {foo: 1}); // 成功
+            console.log(foo);
+            // 这里的括号是必须的,由于没有var let等命令,所以解释器会把{}解释成是代码块,而不是赋值语句(表达式)
+        }
+
+        {
+            // 一般来说,解构失败,变量就会等于undefined
+            let {foo, bar} = { foo: "aaa"};
+            console.log(foo,bar);//aaa undefined
+        }{
+            // 但是如果是嵌套模式的话,并没有对应的父对象的话,就会报错
+            // let {foo: {bar}} = {};// 报错
+            // {bar} = undefined, undefined怎么又有属性bar,所以就报错了
+        }
+
+        /**
+         * 应用
+         */
+        {
+            let { log, abs, cos ,E} = Math;
+            console.log(log(E));// 1
+            console.log(abs(-3));// 3
+        }
+        {
+            let arr = [1, 2, 3];
+            let {0 : first, [arr.length - 1] : last} = arr;
+            console.log(first,last);//1 3
+            //由于数组本质是特殊的对象，因此可以对数组进行对象属性的解构。
         }
     </script>
+    <p><strong>真正被赋值的是后者，而不是前者</strong></p>
 </body>
 
 </html>
