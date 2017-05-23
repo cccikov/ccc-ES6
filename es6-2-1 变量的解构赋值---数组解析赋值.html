@@ -147,6 +147,7 @@
         /*{
             let [x = y, y = 1] = [];
             console.log(x,y);// ReferenceError y is not defined
+            // 这里报错是因为 用let去声明y 但是在声明前就已经使用了y
         }*/
 
     }

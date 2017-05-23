@@ -31,7 +31,7 @@
             let {foo:real,bar} = {foo:"我是真正赋值的值"}
             console.log(real,bar);//我是真正赋值的值,undefined
             // console.log(foo);//foo is not defined 未定义
-            // 定义了real并赋值,定义了bar没有赋值,而foo只是作为一个解构时对应用的属性名而已，在解构中叫做“模式”吧。
+            // 定义了real并赋值,定义了bar没有赋值,而foo只是作为一个解构时对应用的属性名(或者也可以理解为json格式里面的键)而已，在解构中叫做“模式”吧。
         }
 
         /**
