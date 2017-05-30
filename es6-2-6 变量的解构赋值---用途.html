@@ -19,8 +19,37 @@
             [x,y] = [y,x];
             console.log(x,y);// 2 1
         }
-        var [foo] = 'Hello'
-        console.log(foo);
+        {
+            // 2. 函数参数定义
+            function f({x,y,z}){
+                console.log(x,y,z);
+            }
+            f({
+                z:2,
+                x:1,
+                y:3,
+            });
+        }
+        {
+            // 3. 提取json（js对象）数据
+            let data = {
+                id:12,
+                status:"ok",
+                num:[1,4,3,5,1]
+            };
+            let{id,status,num:arr} = data;
+            console.log(id,status,arr);
+        }
+        {
+            // 4. 函数默认值
+            function fn(data,[num = 0,bool = true]){
+                if(bool){
+                    console.log(data[num]);
+                }
+            }
+            fn([1,2,3],[]);
+        }
+
     </script>
 </body>
 </html>
