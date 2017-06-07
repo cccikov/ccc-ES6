@@ -14,53 +14,94 @@
 
 <body>
     <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
     {
         // 字符串允许用 \uxxxx 方式来表示一个字符，其中xxxx是该字符的Unicode码
-        '\z' === 'z' // true
-        '\172' === 'z' // true 8进制的ASCII码
-        '\x7A' === 'z' // true 16进制的ASCII码
-        '\u007A' === 'z' // true Unicode写法
-        '\u{7A}' === 'z' // true es6 Unicode写法
-    } {
-        console.log("\u0061"); // a
-        // 但是这种表示方法只限于Unicode两个字节以内，即"\u0000"~"\uFFFF"
-        console.log("\uD842\uDfB7"); // 𠮷
-        console.log("\u20bb7"); //₻7 其实也是𠮷 不过这样就会解释为"\u20bb"+"7"
+        show([
+            '\z' === 'z', // true
+            '\172' === 'z', // true 8进制的ASCII码
+            '\x7A' === 'z', // true 16进制的ASCII码
+            '\u007A' === 'z', // true Unicode写法
+            '\u{7A}' === 'z' // true es6 Unicode写法
+        ]);
 
-        console.log("\u{20bb7}"); // 𠮷 20bb7为Unicode码点值
-        console.log("\u{61}"); // a
-        console.log("\uD842\uDfB7" == "\u{20bb7}"); //true Unicode的UTF-16写法 与 Unicode的码点写法
-    } {
+        show([
+            "\u0061", // a
+            // 但是这种表示方法只限于Unicode两个字节以内，即"\u0000"~"\uFFFF"
+            "\uD842\uDfB7", // 𠮷
+            "\u20bb7", //₻7 其实也是𠮷 不过这样就会解释为"\u20bb"+"7"
+            "\u{20bb7}", // 𠮷 20bb7为Unicode码点值
+            "\u{61}", // a
+            "\uD842\uDfB7" == "\u{20bb7}" //true Unicode的UTF-16写法 与 Unicode的码点写法
+        ]);
+
+        // JavaScript内部，字符以UTF-16的格式储存，每个字符固定为2个字节
+        // 上面的 charset="UTF-8" 只是说明这个 es6-3-1 字符串的扩展.html 文件里面的内容是以UTF-8编码格式存储,并不会影响js是用什么方式存储字符串
+    }
+
+    /**
+     * codePointAt() - charCodeAt()
+     */
+
+    {
         let str = "𠮷";
-        console.log(str.length); //2 明明是一个字符，长度却变成了2，是因为用了4个字节来表示这个字符
-        console.log(str.charAt(0)); // �
-        console.log(str[1]); // �
-        console.log(str.charCodeAt(0)); // 55362 (0xD842)
-        console.log(str.charCodeAt(1)); // 57271 (0xDfB7)
+        show([
+            str.length, //2 明明是一个字符，长度却变成了2，是因为用了4个字节来表示这个字符,所以以为是两个字符
+            str.charAt(0), // �
+            str[1], // �
+            str.charCodeAt(0), // 55362 (0xD842)
+            str.charCodeAt(1) // 57271 (0xDfB7)
+        ]);
 
         // 对于这些用4个字节来表示的字符，es6提供了一下方法
 
         /**
          * codePointAt 返回 十进制的Unicode 编码点值
          */
-        console.log(str.codePointAt(0)); //134071
-        console.log(str.codePointAt(1)); //57271 与 str.charCodeAt(1) 结果一样
-        console.log((134071).toString(16)); //"20bb7"
+        show([
+            str.codePointAt(0), //134071
+            str.codePointAt(1), //57271 与 str.charCodeAt(1) 结果一样
+            (134071).toString(16) //"20bb7"
+        ]);
     } {
         // 但是通过传入字符串位置这个方法还是不够好，哪知道一个字符是2字节表示，还是4字节表示
         let str = "𠮷a";
 
         // 可以用到 es6的 for...of 方法，不是 for...in
-        for(let i of str){
+        for (let i of str) {
             console.log(i.codePointAt(0));
-        }//134071 97
+        } //134071 97
+
+        for (let i of str) {
+            console.log(i.codePointAt(0).toString(16));
+        } //20bb7 61
 
         // 可以通过codePointAt判断一个字符是否由4个字节构成
-        function is32Bit(s){
+        function is32Bit(s) {
             return s.codePointAt(0) > 0xffff;
         }
-        console.log(is32Bit("𠮷"));//true
-        console.log(is32Bit("a"));//false
+        console.log(is32Bit("𠮷")); //true
+        console.log(is32Bit("a")); //false
+    }
+
+    /**
+     * String.fromCodePoint()
+     */
+    {
+        show([
+            String.fromCharCode(0x20bb7), //ஷ
+            String.fromCodePoint(0x20bb7), //𠮷
+            String.fromCodePoint(0x78, 0x1f680, 0x79),
+            'x\uD83D\uDE80y',
+            String.fromCodePoint(0x78, 0x1f680, 0x79) === 'x\uD83D\uDE80y'
+        ]);
     }
     </script>
 </body>
