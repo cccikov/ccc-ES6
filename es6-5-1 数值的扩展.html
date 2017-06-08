@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>数值的扩展</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    // 和其他编程语言不同，JavaScript不区分整数值和浮点数值。
+    // JavaScript中的所有数字均用浮点数值表示。
+    // JavaScript采用IEEE 754标准定义的64位浮点格式表示数字，这意味着它能表示的最大值是±1.7976931348623157×10308，最小值是±5×10-324 。
+    // 按照JavaScript中的数字格式，能够表示的整数范围是从-9 007 199 254 740 992～9 007 199 254 740 992(即-2^53 ～2^53)，包含边界值。如果使用了超过此范围的整数，则无法保证低位数字的精度。然而需要注意的是，JavaScript中实际的操作（比如数组索引，以及第4章讲到的位操作符）则是基于32位整数。
+
+
+
+    /**
+     * 二进制 前缀0b（或0B） 与 八进制表达 0o（或0O）
+     */
+    {
+        show([
+            // 二进制表示,0b binary
+            0b110, // 6
+            0B110, // 6
+            // 八进制表示,0o octal
+            011, // 9 从 ES5 开始，在严格模式之中，八进制就不再允许使用前缀0表示
+            0o11, // 9
+            0O11, // 9
+            // 十六进制表示,0x hex
+            0x11, // 17
+            0X11 // 17
+        ]);
+    }
+
+    /**
+     * Number.isFinite() Number.isNaN()
+     */
+    {
+        // isFinite() isNaN() 都会自动转化数据类型
+        // 全局的isFinite() 如果参数为有限数字或者可以转化为有限数字,返回true
+        // 全局的isNaN() 如果参数为非数字值或者可以转化为非数字值,返回true;一般用于判断某个值是否数字,或者可以转化为数字,不仅仅判断是否真的是NaN
+
+        //而 Number.isFinite()对于非数值一律返回false, Number.isNaN()只有对于NaN才返回true，非NaN一律返回false。
+
+        show([
+            isNaN("1"), // false 所以我们一般是  !isNaN  来判断是否是数字
+            isNaN("a"), // true
+            isNaN(1), // false
+            isNaN(NaN), // true
+
+            Number.isNaN("1"), //false
+            Number.isNaN("a"), //false
+            Number.isNaN(1), //false
+            Number.isNaN(NaN), //true 所以 !Number.isNaN为true的不一定就是数字
+        ]);
+        // isNaN(x) 可以理解为 x is not a number?
+        // Number.isNaN(x) 可以理解为 x is NaN?
+    }
+
+    /**
+     * Number.parseInt()和Number.parseFloat() 其实就是 parseInt()和parseFloat(),移植到Number对象上面，行为完全保持不变。
+     */
+    {
+        show([
+            // ES5的写法
+            parseInt('12.34'), // 12
+            parseFloat('123.45#'), // 123.45
+
+            // ES6的写法
+            Number.parseInt('12.34'), // 12
+            Number.parseFloat('123.45#') // 123.45
+        ]);
+    }
+
+    /**
+     * Number.isInteger()
+     * 用来判断一个值是否为整数。
+     * 由于在JavaScript内部，整数和浮点数是同样的储存方法,所以3.0和3是同一个值
+     * 所以,实际是判断小数点后面是否除了0外没有别的数字了,即小数部分为值等于0
+     */
+    {
+        show([
+            Number.isInteger(25), // true
+            Number.isInteger(25.0), // true
+            Number.isInteger(25.1), // false
+            Number.isInteger("15"), // false 不会在自动转化为数字在判断
+            Number.isInteger(true) // false
+        ]);
+
+
+        // es5 环境部署Number.isInteger()
+        (function(global) {
+            var floor = Math.floor,
+                isFinite = global.isFinite;
+
+            Object.defineProperty(Number, 'isInteger', {
+                value: function isInteger(value) {
+                    return typeof value === 'number' && isFinite(value) &&
+                        value > -9007199254740992 && value < 9007199254740992 &&
+                        floor(value) === value;
+                },
+                configurable: true,
+                enumerable: false,
+                writable: true
+            });
+        })(this);
+    }
+
+    /**
+     * Number对象上的一些常量
+     */
+    {
+        show([
+            Number.EPSILON, //2.220446049250313e-16 ES6在Number对象上面，新增一个极小的常量Number.EPSILON。用于判断浮点误差
+            Number.MAX_SAFE_INTEGER, // 9007199254740991 ES6最大安全整数
+            Number.MIN_SAFE_INTEGER, //-9007199254740991 ES6最小安全整数
+
+            Number.MAX_VALUE, //1.7976931348623157e+308 js中可以表示的最大的数
+            Number.MIN_VALUE, //5e-324 js中可以表示的最小的数
+            Number.NEGATIVE_INFINITY, //-Infinity 负无穷大
+            Number.POSITIVE_INFINITY, //Infinity 正无穷大
+            Number.NaN, //NaN
+            NaN //NaN
+        ]);
+    }
+
+    /**
+     * Number.EPSILON 极小的常量
+     * 引入一个这么小的量的目的，在于为浮点数计算，设置一个误差范围。我们知道浮点数计算是不精确的。但是如果这个误差能够小于Number.EPSILON，我们就可以认为得到了正确结果。
+     */
+    {
+        show([
+            0.1+0.2 == 0.3,// false 因为浮点数计算的原因
+            0.1+0.2-0.3,// 5.551115123125783e-17
+            0.1+0.2-0.3 < Number.EPSILON,// true
+            equal(0.1+0.2,0.3)// true
+        ]);
+
+        // 通常我们判断两边是否相等, 可以通过相减是否为 0;但是由于浮点数计算问题,所以我们只要两个数相减的绝对值比 极小常量 小,就可以说明两个数是相等
+        function equal (num1, num2) {
+            return Math.abs(num1 - num2) < Number.EPSILON;
+        }
+    }
+
+    /**
+     * 安全整数 Number.isSafeInteger()
+     */
+    {
+        // ES6引入了Number.MAX_SAFE_INTEGER和Number.MIN_SAFE_INTEGER这两个常量，用来表示这个范围的上下限。
+
+        // Number.MAX_SAFE_INTEGER 为 9007199254740991 2^53-1
+        // Number.MIN_SAFE_INTEGER 为 -9007199254740991 -(2^53-1)
+
+        // 9007199254740992 即 Number.MAX_SAFE_INTEGER+1可以显示,但是计算已经不正确了
+        show([
+            Number.MAX_SAFE_INTEGER+1 == Number.MAX_SAFE_INTEGER,//false
+            9007199254740992  == 9007199254740992 + 1,// true
+        ]);
+
+        // Number.isSafeInteger()则是用来判断一个整数是否落在这个安全范围之内
+
+        show([
+            Number.isSafeInteger('a'), // false
+            Number.isSafeInteger(null), // false
+            Number.isSafeInteger(NaN), // false
+            Number.isSafeInteger(Infinity), // false
+            Number.isSafeInteger(-Infinity), // false
+
+            Number.isSafeInteger(3), // true
+            Number.isSafeInteger("3"), // false 不会自动转化为number再判断
+            Number.isSafeInteger(1.2), // false 由于不是整数,所以false
+            Number.isSafeInteger(9007199254740990), // true
+            Number.isSafeInteger(9007199254740992) // false
+        ]);
+    }
+
+
+    </script>
+</body>
+
+</html>

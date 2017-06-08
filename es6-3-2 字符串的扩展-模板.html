@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>es6-3-2 字符串的扩展 - 模板</title>
+</head>
+<body>
+    <script type="text/javascript">
+    {
+        let data = {
+            "name":"ccc",
+            "age":18,
+        }
+
+        /**
+         * 模板字符串（template string）是增强版的字符串，用反引号（`）标识
+         *
+         * 模板字符串中嵌入变量，需要将变量名写在${}之中
+         * 大括号内部可以放入任意的JavaScript表达式，可以进行运算，以及引用对象属性。
+         * 能调用函数
+         * 大括号中中的值不是字符串，将按照一般的规则转为字符串
+         *
+         * 通过${}模板字符串甚至还能嵌套。
+         */
+        let str =
+        `<div>
+            <p>Lorem ipsum dolor.</p>
+            <a href="javascript:void(0)">百度一下</a>
+            <button>按钮</button>
+            <span>${data.name}</span>
+            <span>${data.age}</span>
+            <span>${undefined == null}</span>
+            <span>${
+                (function(){
+                    return 1+1
+                })()
+            }</span>
+            <p>${"asjdlasjd"+"asdjalsjd"}</p>
+            <p>${new Object()}</p>
+        </div>
+        <div>
+            ${
+                `<p>Lorem ipsum dolor.</p>
+                <p>${data.name} ipsum dolor.</p>
+                <p>Lorem ipsum ${data.age}.</p>`
+            }
+        </div>
+        `
+        document.body.innerHTML = str;
+    }
+    {
+        let tmpl = data => `
+          <table>
+          ${data.map((key,index) => `
+            <tr><td>${key.first}</td></tr>
+            <tr><td>${key.last}</td></tr>
+            <tr><td>${index}</td></tr>
+          `).join('')}
+          </table>
+        `;
+
+        // 箭头函数
+        // (参数1,参数2,...) => {函数体}
+        // (参数1,参数2,...) => 返回值
+
+        // 如果参数只有一个 可以不加 括号
+        // 参数 => {函数体}
+        // 参数 => 返回值
+
+        // 如果返回值是一个对象{}的时候
+        // 参数 => (返回值)
+
+        let data = [
+            { first: '<Jane>', last: 'Bond' },
+            { first: 'Lars', last: '<Croft>' },
+        ];
+        console.log(tmpl(data));
+    }
+    </script>
+</body>
+
+</html>

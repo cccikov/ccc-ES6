@@ -49,7 +49,29 @@
             }
             fn([1,2,3],[]);
         }
+        {
+            // 遍历Map结构
+            var map = new Map();//类似js对象,但是键名不局限于字符串,可以是对象
+            map.set('first', 'hello');
+            map.set('second', 'world');
+            console.log(map);//{"first" => "hello", "second" => "world"}
 
+            for(let i of map){
+                console.log(i);
+            }//["first", "hello"] ["second", "world"]
+
+            for (let [key, value] of map) {
+                console.log(key + " is " + value);
+            }// first is hello  second is world
+
+            for (let [key] of map) {
+                console.log(key);
+            }// first second
+
+            for (let [, value] of map) {
+                console.log(value);
+            }// hello world
+        }
     </script>
 </body>
 </html>

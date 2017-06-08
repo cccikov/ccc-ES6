@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>正则表达式扩展</title>
+</head>
+<body>
+    <script type="text/javascript">
+        function show(arr) {
+            console.log("");
+            arr.forEach(function(key, i) {
+                console.log(i + "", key);
+            });
+            console.log("");
+        }
+
+        {
+            /**
+             * ES6中。如果RegExp构造函数第一个参数是一个正则对象，那么可以使用第二个参数指定修饰符。而且，返回的正则表达式会忽略原有的正则表达式的修饰符，只使用新指定的修饰符。
+             */
+            show([
+                /xyz/i,
+                new RegExp('xyz', 'i'),
+                new RegExp(/xyz/i),
+                new RegExp(/xyz/, 'i'),//在es5中,如果第一个参数是正则,是不允许有第二参数的
+                new RegExp(/abc/ig, 'i').flags
+            ]);
+        }
+    </script>
+</body>
+</html>

@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <title>字符串的扩展 </title>
     <script type="text/javascript">
-    document.onkeypress = function(e) {
-        var e = e || window.event;
-        console.log(e.keyCode);
-    }
+        document.onkeypress = function(e) {
+            var e = e || window.event;
+            kc = e.keyCode;
+            console.log(kc,kc.toString(2),kc.toString(8),kc.toString(16));
+        }
     </script>
 </head>
-
 <body>
     <script type="text/javascript">
     function show(arr) {
@@ -47,9 +47,8 @@
     }
 
     /**
-     * codePointAt() - charCodeAt()
+     * codePointAt() - charCodeAt() 返回十进制的Unicode 编码点值
      */
-
     {
         let str = "𠮷";
         show([
@@ -61,10 +60,6 @@
         ]);
 
         // 对于这些用4个字节来表示的字符，es6提供了一下方法
-
-        /**
-         * codePointAt 返回 十进制的Unicode 编码点值
-         */
         show([
             str.codePointAt(0), //134071
             str.codePointAt(1), //57271 与 str.charCodeAt(1) 结果一样
@@ -92,7 +87,7 @@
     }
 
     /**
-     * String.fromCodePoint()
+     * String.fromCodePoint() - fromCharCode() 根据码点返回对应字符
      */
     {
         show([
@@ -103,6 +98,88 @@
             String.fromCodePoint(0x78, 0x1f680, 0x79) === 'x\uD83D\uDE80y'
         ]);
     }
+
+    /**
+     * 字符串遍历接口 for...of 详情见 Iterator
+     */
+    {
+        // for-in遍历的是属性名,遍历对象
+        let str = "𠮷a";
+        for(let i in str){
+            console.log(str[i]);
+        }// � � a
+
+        // for-of遍历的是值(数组等具有具有Iterator接口的数据类型) 并且可以识别大于0xFFFF的码点
+        for(let i of str){
+            console.log(i);
+        } // 𠮷 a
+    }
+
+    /**
+     * includes(), startsWith(), endsWith()
+     * includes()：返回布尔值，表示是否找到了参数字符串，第二个参数表示开始搜索的位置。
+     * startsWith()：返回布尔值，表示参数字符串是否在源字符串的头部，第二个参数表示开始搜索的位置。
+     * endsWith()：返回布尔值，表示参数字符串是否在源字符串的尾部，第二个参数前n个字符中。
+     */
+     {
+        // 传统上，JavaScript只有indexOf方法，可以用来确定一个字符串是否包含在另一个字符串中
+        let str = 'Hello world!';
+        show([
+            str.indexOf("Hello"),// 0 "Hello"在字符串位置0
+            str.indexOf("Hello") > -1,// true 该字符串有"Hello"
+            str.includes('Hello', 6), // false 从第6个字符开始,找不到"Hello"
+            str.startsWith('world', 6), // true world是处于第6个字符开始的头部
+            str.endsWith('Hello', 5) // true "Hello"是处于前五个字符的尾部
+        ]);
+     }
+
+     /**
+      * repeat 方法返回一个新字符串，表示将原字符串重复n次
+      */
+    {
+        show([
+            'x'.repeat(3), // "xxx"
+            'hello'.repeat(2), // "hellohello"
+            'na'.repeat(0) // ""
+        ]);
+    }
+
+    /**
+     * padStart() padEnd()
+     * ES2017 引入了字符串补全长度的功能。如果某个字符串不够指定长度，会在头部或尾部补全。
+     * padStart()用于头部补全，padEnd()用于尾部补全
+     */
+    {
+        let str = "补全";
+        show([
+            str.padStart(5,"ab"),// aba补全
+            str.padStart(6,"ab"),// abab补全
+            str.padEnd(3,"ab"),// 补全a
+            str.padEnd(6,"ab"),// 补全abab
+
+            // 如果原字符串的长度，等于或大于指定的最小长度，则返回原字符串。
+            str.padStart(1,"ab"),// 补全
+            str.padEnd(1,"ab"),//补全
+
+            //如果用来补全的字符串与原字符串，两者的长度之和超过了指定的最小长度，则会截去超出位数的补全字符串。
+            'abc'.padStart(10, '0123456789'), //0123456abc
+
+            //如果省略第二个参数，默认使用空格补全长度
+            str.padStart(5),// "   补全"
+            str.padEnd(5),// "补全   "
+
+            //用途
+            //1. padStart的常见用途是为数值补全指定位数。下面代码生成10位的数值字符串。
+            '1'.padStart(10, '0'), // "0000000001"
+            '12'.padStart(10, '0'), // "0000000012"
+            '123456'.padStart(10, '0'), // "0000123456"
+            //2. 另一个用途是提示字符串格式。
+            '12'.padStart(10, 'YYYY-MM-DD'), // "YYYY-MM-12"
+            '09-12'.padStart(10, 'YYYY-MM-DD'), // "YYYY-09-12"
+            '2017'.padStart(10, 'YYYY-MM-DD') // "YYYY-09-12"
+        ]);
+    }
+
     </script>
 </body>
 
