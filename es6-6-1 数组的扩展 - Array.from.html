@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>数组的扩展 - Array.from</title>
+</head>
+
+<body>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <p>Lorem ipsum dolor.</p>
+    <script type="text/javascript">
+    /**
+     * Array.from() 用于将两类对象转为真正的数组：
+     * 类似数组的对象（array-like object）,拥有一个 length 属性和若干索引属性的任意对象
+     * 和可遍历（iterable）的对象（包括ES6新增的数据结构Set和Map）。
+     */
+    {
+        let arrLike = {
+            '0': 'a',
+            '1': 'b',
+            '2': 'c',
+            length: 3
+        }
+
+        // es5 写法
+        let arr1 = [].slice.call(arrLike);
+
+        // es6 写法
+        let arr2 = Array.from(arrLike);
+        console.log(
+            arr1, // ["a", "b", "c"]
+            arr2 // ["a", "b", "c"]
+        )
+    }
+
+    {
+        // 在实际运用中NodeList集合,以及函数arguments都是类数组
+        let p = document.querySelectorAll('p');
+        Array.from(p).forEach(key => {
+            key.style.background = '#f00'
+        });
+
+        let fn = function() {
+            let arg = arguments
+            let argArr = Array.from(arg);
+            console.log(
+                arg, argArr
+            );
+        }
+        fn(1, 23, 4, 5, "a");
+        // [1, 23, 4, 5, "a", callee: function, Symbol(Symbol.iterator): function] 是一个对象
+        // [1, 23, 4, 5, "a"] 是一个数组
+    }
+
+    {
+        // 具有Iterator接口的数据结构 , Array.from也能将其转为数组。
+        console.log(
+            Array.from('hello') // ["h", "e", "l", "l", "o"]
+        );
+
+        // 具有Iterator接口的数据结构 , 还可以通过
+        function foo() {
+            var args = [...arguments];
+            console.log(args);
+        }
+        foo(1, 3, 4, 1, 3, 6);
+        console.log([...document.querySelectorAll('p')]);
+    }
+    </script>
+</body>
+
+</html>
