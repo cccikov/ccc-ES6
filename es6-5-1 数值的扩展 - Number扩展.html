@@ -98,7 +98,7 @@
 
 
         // es5 环境部署Number.isInteger()
-        (function(global) {
+        /*(function(global) {
             var floor = Math.floor,
                 isFinite = global.isFinite;
 
@@ -112,7 +112,7 @@
                 enumerable: false,
                 writable: true
             });
-        })(this);
+        })(this);*/
     }
 
     /**
@@ -139,14 +139,14 @@
      */
     {
         show([
-            0.1+0.2 == 0.3,// false 因为浮点数计算的原因
-            0.1+0.2-0.3,// 5.551115123125783e-17
-            0.1+0.2-0.3 < Number.EPSILON,// true
-            equal(0.1+0.2,0.3)// true
+            0.1 + 0.2 == 0.3, // false 因为浮点数计算的原因
+            0.1 + 0.2 - 0.3, // 5.551115123125783e-17
+            0.1 + 0.2 - 0.3 < Number.EPSILON, // true
+            equal(0.1 + 0.2, 0.3) // true
         ]);
 
         // 通常我们判断两边是否相等, 可以通过相减是否为 0;但是由于浮点数计算问题,所以我们只要两个数相减的绝对值比 极小常量 小,就可以说明两个数是相等
-        function equal (num1, num2) {
+        function equal(num1, num2) {
             return Math.abs(num1 - num2) < Number.EPSILON;
         }
     }
@@ -157,13 +157,17 @@
     {
         // ES6引入了Number.MAX_SAFE_INTEGER和Number.MIN_SAFE_INTEGER这两个常量，用来表示这个范围的上下限。
 
-        // Number.MAX_SAFE_INTEGER 为 9007199254740991 2^53-1
-        // Number.MIN_SAFE_INTEGER 为 -9007199254740991 -(2^53-1)
+        // Number.MAX_SAFE_INTEGER 为 9007199254740991 2^53-1 因为还有0 所以要减去1
+        // Number.MIN_SAFE_INTEGER 为 -9007199254740991 -(2^53-1) 因为还有0 所以要减去1
+
+
+        //  就好像 0xffffffff ===  Math.pow(2,32)-1 32位表示最大的数是0xffffffff   而Math.pow(2,32)表示32位里面可以表示多少个数 由于0的存在 所以32位表示最大的数Math.pow(2,32)-1
+        // 0 1 2  这里3个数,最大才是2
 
         // 9007199254740992 即 Number.MAX_SAFE_INTEGER+1可以显示,但是计算已经不正确了
         show([
-            Number.MAX_SAFE_INTEGER+1 == Number.MAX_SAFE_INTEGER,//false
-            9007199254740992  == 9007199254740992 + 1,// true
+            Number.MAX_SAFE_INTEGER + 1 == Number.MAX_SAFE_INTEGER, //false
+            9007199254740992 == 9007199254740992 + 1, // true
         ]);
 
         // Number.isSafeInteger()则是用来判断一个整数是否落在这个安全范围之内
@@ -181,8 +185,27 @@
             Number.isSafeInteger(9007199254740990), // true
             Number.isSafeInteger(9007199254740992) // false
         ]);
-    }
 
+        // es5部署
+        /*Number.isSafeInteger = function (n) {
+          return (typeof n === 'number' &&
+            Math.round(n) === n &&
+            -9007199254740992 <= n &&
+            n <= 9007199254740991);
+        }*/
+
+        // 在计算判断时，不能只判断结果是否在安全范围内，应该同时判断运算数
+        function trusty(left, right, result) {
+            if (
+                Number.isSafeInteger(left) &&
+                Number.isSafeInteger(right) &&
+                Number.isSafeInteger(result)
+            ) {
+                return result;
+            }
+            throw new RangeError('Operation cannot be trusted!');
+        }
+    }
 
     </script>
 </body>
