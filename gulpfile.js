@@ -6,7 +6,7 @@ let reload = browserSync.reload;
 
 let browserSyncPath = ["*.html"]; // 监视同步路径
 let browserSyncRootPath = "./";
-let browserSyncIndex = "es6-1-1 let-const-块级作用域---let.html"; // 服务器启动的时候,默认打开的文件
+let browserSyncIndex = "index.html"; // 服务器启动的时候,默认打开的文件
 
 
 gulp.task('default', ["browser-sync"], function() {
