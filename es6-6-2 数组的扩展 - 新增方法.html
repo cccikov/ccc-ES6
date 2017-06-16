@@ -83,7 +83,7 @@
         ]);
 
         //Object.is(value1, value2) 返回一个 布尔值指示两个参数是否相同的。
-        // 不会 做隐式的类型转换
+        // 不会 做隐式类型转换
         // 与 严格相等运算符 ===区别 , ===会把 -0 和 +0 这两个数值视为相同的，还会把两个 NaN 看成是不相等的
 
         show([
@@ -109,6 +109,69 @@
             [1, 2, 3].fill("hello"), // ["hello", "hello", "hello"]
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].fill("haha", 6, 8) // [0, 1, 2, 3, 4, 5, "haha", "haha", 8, 9]
         ]);
+    }
+
+    /**
+     * includes() 方法返回一个布尔值，表示某个数组是否包含给定的值
+     *
+     * arr.includes(searchElement, fromIndex)
+     * searchElement 需要查找的元素值。
+     * fromIndex 可选 从该索引处开始查找 searchElement。如果为负值，则按升序从 array.length + fromIndex 的索引开始搜索。默认为 0。
+     */
+    {
+        show([
+            [1, 2, 3].includes(2), // true
+            [1, 2, 3].includes(4), // false
+            [1, 2, NaN].includes(NaN) // true
+        ]);
+    }
+
+    /**
+     * includes() 方法返回一个布尔值，表示某个数组是否包含给定的值
+     *
+     * arr.includes(searchElement, fromIndex)
+     * searchElement 需要查找的元素值。
+     * fromIndex 可选 从该索引处开始查找 searchElement。如果为负值，则按升序从 array.length + fromIndex 的索引开始搜索。默认为 0。
+     */
+    {
+        show([
+            [1, 2, 3].includes(2), // true
+            [1, 2, 3].includes(2, 1), // true
+            [1, 2, 3].includes(2, 2), // false
+            [1, 2, 3].includes(4), // false
+            [1, 2, NaN].includes(NaN), // true
+
+            //indexOf方法有两个缺点，
+            // 一是不够语义化，它的含义是找到参数值的第一个出现位置，所以要去比较是否不等于-1，表达起来不够直观。
+            // 二是，它内部使用严格相等运算符（===）进行判断，这会导致对NaN的误判。
+            [1, 2, 3].indexOf(2) > -1, // true
+            [1, 2, 3].indexOf(4) > -1, // false
+            [1, 2, NaN].indexOf(NaN) > -1 // false
+        ]);
+    }
+
+    /**
+     * entries() keys() values()——用于遍历数组
+     *
+     * 它们都返回一个遍历器对象（详见《Iterator》一章），可以用for...of循环进行遍历，
+     * 唯一的区别是
+     * keys()是对键名的遍历、
+     * values()是对键值的遍历(尚未有浏览器实现,包括chrome,Firefox)，
+     * entries()是对键值对的遍历。
+     */
+    {
+        let arr = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k"];
+
+        for (let index of arr.keys()) {
+            console.log(index);
+        }
+        // 0 1 2 3 4 5 6 7 8 9 10
+        // 实质上是用在对象上的 . 数组看起来没有什么意义 , 键名都是一串数字 .
+
+        for (let [index, key] of arr.entries()) {
+            console.log(index, key);
+        }
+        // 0 "a"   1 "b"   2 "c"   3 "d"   4 "e"   5 "f"   6 "g"   7 "h"   8 "i"   9 "j"   10 "k"
     }
     </script>
 </body>

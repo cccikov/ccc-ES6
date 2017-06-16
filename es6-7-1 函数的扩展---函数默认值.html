@@ -3,12 +3,130 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>变量的解构赋值---函数解析赋值</title>
+    <title>函数的扩展---函数默认值</title>
 </head>
 
 <body>
     <script type="text/javascript">
-    // undefined 会触发默认值
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * es5就是利用逻辑判断符这个特性来
+     * || 只要第一个为true，就退出为true。 前者为true就返回前者 , 否则返回后者 ; 前者为true就不会执行后面的语句
+     * && 只要第一个为false，就退出为false。 前者为false就返回前者 , 否则返回后者 ; 前者为false就不会执行后面的语句 cb && cb();
+     */
+    {
+        // 对于复杂数据类型 , 比较简单 , 因为都为true ; 所以只要有传入参数就就为true , 没有就等于默认值
+        show([!![], // true
+            !!{} // true
+        ]);
+
+        function fn(obj, arr) {
+            obj = obj || {
+                name: "ccc"
+            };
+            return {
+                obj,
+                arr
+            }
+        }
+        console.log(fn(null, [1]));
+    }
+
+    {
+        // 对于5中基本数据类型来说就有些麻烦了 String Number Boolean undefined null
+        // 其中 string 的空字符""是false的 ; number 的0是false的 ; boolean的false
+        // undefined null 这两个数据类型就只有一种值 , 如果真的想要参数是这种类型的 , 直接设死就可以了
+
+        // 如果默认值类型转换后为false还好办 , 可以用回以前的方法. 因为 string 和 number 数据类型中就只有一种情况为false
+        function fn(str, num, bool, un, nu) {
+            str = str || "";
+            num = num || 0;
+            bool = bool || false;
+            un = undefined;
+            nu = null;
+
+            return {
+                str,
+                num,
+                bool,
+                un,
+                nu
+            }
+        }
+        console.log(fn("a", 1, true));
+
+
+        // 对于布尔型 因为只有两种值 , 所以也无所谓 , 若要默认值为true
+        function boolFn(bool) {
+
+            let bool1 = typeof bool == "boolean" ? bool : true;
+            let bool2 = bool == undefined ? true : bool;
+            let bool3 = bool == undefined ? true : !!bool;
+            let bool4 = bool === false ? false : true; // 这个是比较符合实际的 , 只有写上false才会是false
+            let bool5 = (bool === false || bool === "false") ? false : true; // 这个是也比较符合实际的 只有写上false才会是false
+            let bool6 = true && bool;
+            let bool7 = bool && true;
+            let bool8 = !!(true && bool);
+
+            return {
+                // bool1,
+                // bool2,
+                // bool3,
+                // bool4,
+                // bool5,
+                bool6,
+                bool7,
+                bool8
+            }
+        }
+        show([
+            boolFn(false),
+            boolFn("false"),
+            boolFn(),
+            boolFn(null),
+            boolFn(true),
+            boolFn("true"),
+            boolFn(0),
+            boolFn(1),
+            boolFn(""),
+            boolFn("hello"),
+
+        ]);
+
+
+    }
+
+    function fnNum(num) {
+        num = num == 0 && 1;
+        return num;
+
+        // cb && cb();
+    }
+    show([
+        fnNum(0),
+        fnNum(1),
+        fnNum(),
+    ]);
+
+
+
+    var obj = {};
+    // if(!obj.arr){
+    //     obj.arr = [];
+    // }
+    (obj.arr) || (obj.arr = []);
+    obj.arr.push(1,2,3,4);
+    console.log(obj);
+
+
+
     </script>
 </body>
 
