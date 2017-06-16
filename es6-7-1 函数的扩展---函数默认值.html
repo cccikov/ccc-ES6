@@ -74,6 +74,7 @@
             let bool6 = true && bool;
             let bool7 = bool && true;
             let bool8 = !!(true && bool);
+            let bool9 = bool == undefined && (bool && true)
 
             return {
                 // bool1,
@@ -81,9 +82,9 @@
                 // bool3,
                 // bool4,
                 // bool5,
-                bool6,
-                bool7,
-                bool8
+                // bool6,
+                // bool7,
+                // bool8
             }
         }
         show([
@@ -118,6 +119,7 @@
 
 
     var obj = {};
+    obj.arr = ["a"];
     // if(!obj.arr){
     //     obj.arr = [];
     // }
@@ -125,6 +127,15 @@
     obj.arr.push(1,2,3,4);
     console.log(obj);
 
+    function fnfalse(){
+        console.log("运行了false");
+        return false;
+    }
+    function fntrue(){
+        console.log("运行了true");
+        return true;
+    }
+    fnfalse() && (fntrue());
 
 
     </script>
