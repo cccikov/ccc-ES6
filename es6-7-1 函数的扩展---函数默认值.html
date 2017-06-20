@@ -16,6 +16,8 @@
         console.log("");
     }
 
+
+
     /**
      * es5就是利用逻辑判断符这个特性来
      * || 只要第一个为true，就退出为true。 前者为true就返回前者 , 否则返回后者 ; 前者为true就不会执行后面的语句
@@ -62,29 +64,32 @@
         }
         console.log(fn("a", 1, true));
 
-
         // 对于布尔型 因为只有两种值 , 所以也无所谓 , 若要默认值为true
         function boolFn(bool) {
-
+            let bool0 = bool !== undefined ? (bool == "false" ? false : bool) : true;
             let bool1 = typeof bool == "boolean" ? bool : true;
             let bool2 = bool == undefined ? true : bool;
             let bool3 = bool == undefined ? true : !!bool;
+            let bool3_1 = bool == undefined ? true : Boolean(bool);
             let bool4 = bool === false ? false : true; // 这个是比较符合实际的 , 只有写上false才会是false
-            let bool5 = (bool === false || bool === "false") ? false : true; // 这个是也比较符合实际的 只有写上false才会是false
+            let bool5 = (bool == false || bool === "false") ? false : true; // 这个是也比较符合实际的 只有写上false才会是false
             let bool6 = true && bool;
             let bool7 = bool && true;
             let bool8 = !!(true && bool);
-            let bool9 = bool == undefined && (bool && true)
+            let bool9 = bool == undefined && (bool && true);
 
             return {
-                // bool1,
-                // bool2,
-                // bool3,
-                // bool4,
-                // bool5,
-                // bool6,
-                // bool7,
-                // bool8
+                bool,
+                bool0,
+                bool1,
+                bool2,
+                bool3,
+                bool3_1,
+                bool4,
+                bool5,
+                bool6,
+                bool7,
+                bool8
             }
         }
         show([
@@ -97,47 +102,198 @@
             boolFn(0),
             boolFn(1),
             boolFn(""),
-            boolFn("hello"),
-
+            boolFn("hello")
         ]);
 
+        // 对于字符串 空字符""
+        function strFn(str) {
+            let str1 = str || "hello";
+            let str2 = str !== undefined ? String(str) : "hello";
 
+            return {
+                str,
+                str1,
+                str2
+            }
+        }
+        show([
+            strFn(),
+            strFn("你好"),
+            strFn(""),
+            strFn([1, 2, 3]),
+            strFn({
+                "name": "ccc"
+            })
+        ]);
+
+        // 对于数字 数字0
+        function numFn(num) {
+            let num1 = num || 1;
+            let num2 = num !== undefined ? Number(num) : 1;
+            let num3 = num === 0 ? 0 : 1; //只有0和1
+
+            return {
+                num,
+                num1,
+                num2,
+                num3
+            }
+        }
+        show([
+            numFn(),
+            numFn(2),
+            numFn(0),
+            numFn(1),
+            numFn([1, 2, 3]),
+            numFn({"name": "ccc"}),
+        ]);
+
+        // 对于es5来说 , 一般都还是先判断一下参数是否有赋值
+        // arg = arg !== undefined ? arg : default;
     }
 
-    function fnNum(num) {
-        num = num == 0 && 1;
-        return num;
 
-        // cb && cb();
+    /**
+     * es6 默认值
+     * es6 允许为函数的参数设置默认值，即直接写在参数定义的后面。
+     */
+    {
+        function fn(x, y = 'World') {
+            console.log(x, y);
+        }
+        fn('Hello'), // Hello World
+        fn('Hello', 'China'), // Hello China
+        fn('Hello', '') // Hello
+
+        function Person(name = "ccc", age = 18) {
+            this.name = name;
+            this.age = age;
+        }
+        let person1 = new Person();
+        console.log(person1); // {name: "ccc", age: 18}
     }
-    show([
-        fnNum(0),
-        fnNum(1),
-        fnNum(),
-    ]);
 
 
+    /**
+     * 与解构赋值默认值合用
+     */
+    {
+        // 单用解构赋值默认值
+        function foo({x, y = 5}){
+            return [x,y];
+        }
+        show([
+            foo({}), // [undefined, 5]
+            foo({x:10}), // [10, 5]
+            foo({x:10,y:20}), // [10, 20]
+            // foo() // 报错 , 解构错误
+        ]);
 
-    var obj = {};
-    obj.arr = ["a"];
-    // if(!obj.arr){
-    //     obj.arr = [];
-    // }
-    (obj.arr) || (obj.arr = []);
-    obj.arr.push(1,2,3,4);
-    console.log(obj);
-
-    function fnfalse(){
-        console.log("运行了false");
-        return false;
+        function fn(url , {body = "", "method":method = "GET"}){
+            return method;
+        }
+        show([
+            fn("http://www.baidu.com",{}), // GET
+            fn("http://www.baidu.com",{method:"POST"}), // POST
+            // fn("http://www.baidu.com") //报错 , 解构错误
+        ]);
     }
-    function fntrue(){
-        console.log("运行了true");
-        return true;
+
+    {
+        // 结合使用
+        function fn(url, { method = 'GET' } = {}) {// 意思就是第二个参数默认是{}
+            return method;
+        }
+        show([
+            fn("http://www.baidu.com",{}), // GET
+            fn("http://www.baidu.com",{method:"POST"}), // POST
+            fn("http://www.baidu.com") // GET 相当于 fn("http://www.baidu.com",{}) 由于第二个参数默认值为{}
+        ]);
     }
-    fnfalse() && (fntrue());
 
+    {
+        // 写法一 函数参数的默认值是空对象，但是设置了对象解构赋值的默认值；
+        function m1({x = 0, y = 0} = {}) { // 参数的默认值是{}
+            return [x, y];
+        }
 
+        // 写法二 函数参数的默认值是一个有具体属性的对象，但是没有设置对象解构赋值的默认值。
+        function m2({x, y} = { x: 0, y: 0 }) {// 参数的默认值是{ x: 0, y: 0 }
+            return [x, y];
+        }
+
+        // 写法三 函数参数的默认值是一个有具体属性的对象 ,
+        function m3({x = "a", y = "b"} = { x: 0, y: 0 }) { // 参数的默认值是{ x: 0, y: 0 }
+            return [x, y];
+        }
+
+        show([
+            // 函数没有参数的情况
+            m1(), // [0, 0] 相当于传入一个 {}
+            m2(), // [0, 0] 相当于传入一个 { x: 0, y: 0 }
+            m3(), // [0, 0] 相当于传入一个 { x: 0, y: 0 }
+
+            // x和y都有值的情况
+            m1({x: 3, y: 8}), // [3, 8]
+            m2({x: 3, y: 8}), // [3, 8]
+            m3({x: 3, y: 8}), // [3, 8]
+
+            // x有值，y无值的情况
+            m1({x: 3}), // [3, 0]
+            m2({x: 3}), // [3, undefined]
+            m3({x: 3}), // [3, "b"]
+
+            // x和y都无值的情况
+            m1({}), // [0, 0];
+            m2({}), // [undefined, undefined]
+            m3({}), // ["a", "b"]
+
+            m1({z: 3}), // [0, 0]
+            m2({z: 3}), // [undefined, undefined]
+            m3({z: 3}) // ["a", "b"]
+        ]);
+    }
+
+    /**
+     * 参数默认值的位置
+     */
+    {
+        // 一般来说有默认的参数都是尾参数(即都是放在最后的参数)
+        function fn(x,y,z = 0){
+            return [x,y,z];
+        }
+        show([
+            fn(1,2), // [1, 2, 0]
+            fn(1,2,3), // [1, 2, 3]
+        ]);
+
+        function foo(x = 0, y ,z){ // 如果不是最后 , 实际上这个参数是没法省略的
+            return [x,y,z];
+        }
+        show([
+            foo(undefined,2,3), // [0, 2, 3]
+            foo(1,2,3), // [1, 2, 3]
+            foo(null,2,3), // [null, 2, 3] 不同于es5的一般写法null是不触发默认值的(因为null == undef为true , 而es6的默认值都是采用 === 判断的) , 只有undefined
+        ]);
+    }
+
+    /**
+     * 函数的 length 属性
+     *
+     * length 是函数对象的一个属性值，指该函数有多少个必须要传入的参数
+     */
+    {
+        show([
+            (function (a) {}).length, // 1
+            (function (a = 5) {}).length, // 0
+            (function (a, b, c = 5) {}).length, // 2
+
+            // 如果设置了默认值的参数不是尾参数，那么length属性也不再计入后面的参数了。
+            (function (a = 0, b, c) {}).length, // 0
+            (function (a, b = 1, c) {}).length, // 1
+            // 所以再次说明设了默认值的参数放在最后是多么的重要
+        ]);
+    }
     </script>
 </body>
 
