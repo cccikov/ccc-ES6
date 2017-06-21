@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>函数的扩展---rest参数 & 扩展运算符</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+    /**
+     * rest 参数
+     *
+     * ES6 引入 rest 参数（形式为“...变量名”），用于获取函数的多余参数，这样就不需要使用arguments对象了。rest 参数搭配的变量是一个数组，该变量将多余的参数放入数组中。
+     */
+    {
+        function add(...values) { //这里只有rest参数可以采用 [].slice.call(arguments)代替
+            let sum = 0;
+            let sum2 = 0;
+            for (let val of values) {
+                sum += val;
+            }
+            for (let name in values) {
+                sum2 += values[name];
+            }
+            console.log(sum, sum2);
+        }
+        add(1, 2, 3, 4); // 10 10
+
+        function fn(a, b, c, ...arg) {
+            console.log(a, b, c, arg);
+        }
+        fn(1, 2, 3, 4, 5, 6, 7, 8); // 1 2 3  [4, 5, 6, 7, 8]
+
+        // 注意，rest 参数之后不能再有其他参数（即只能是最后一个参数），否则会报错。
+        /*function foo(a,...b,c){ // Rest parameter must be last formal
+        }*/
+
+        //函数的length属性，不包括 rest 参数
+        show([
+            (function(a) {}).length, // 1
+            (function(...a) {}).length, // 0
+            (function(a, ...b) {}).length // 1
+        ]);
+    }
+
+    /**
+     * 扩展运算符
+     *
+     * 扩展运算符（spread）是三个点（...）。它好比 rest 参数的逆运算，将一个数组转为用逗号分隔的参数序列。
+     * 该运算符主要用于函数调用。
+     */
+    {
+        function fn(...arg) {
+            console.log(...arg); // 调用console.log时作为参数传入
+        }
+        fn(1, 23, 3, 4, 5, 6); // 1 23 3 4 5 6
+
+        show([
+            ...[1, 2, 3, 4]
+        ]); // 1 2 3 4
+
+        // 在扩展运算符出现以前 , 要将一个数组转为用逗号分隔的参数序列 , 就要采用apply调用 , apply的第二个参数是一个数组
+        function f(x, y, z) {
+            console.log(x, y, z);
+            // console.log(arguments);
+        }
+        let arr = [3, 4, 8, 11, 25]; //如果我想将数组里面的值作为参数传入
+
+        // es5写法
+        f.apply(null, arr); // 3 4 8
+        // es6写法
+        f(...arr); // 3 4 8
+
+
+        // 同理 Math.max找最大值一样
+        show([
+            // ES5的写法
+            Math.max.apply(null, arr), // 25
+
+            // ES6的写法
+            Math.max(...arr), // 25
+
+            // 等同于
+            Math.max(3, 4, 8, 11, 25) // 25
+        ]);
+    }
+    </script>
+</body>
+
+</html>
