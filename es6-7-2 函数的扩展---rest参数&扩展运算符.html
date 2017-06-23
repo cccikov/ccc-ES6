@@ -7,6 +7,17 @@
 </head>
 
 <body>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+
     <script type="text/javascript">
     function show(arr) {
         console.log("");
@@ -92,6 +103,95 @@
 
             // 等同于
             Math.max(3, 4, 8, 11, 25) // 25
+        ]);
+    }
+
+    /**
+     * 扩展运算符用法
+     */
+    {
+        // 1.合并数组
+
+        let arr = [4, 5, 6];
+        show([
+            // es5
+            [1, 2].concat(arr),
+            // es6
+            [1, 2, ...arr]
+        ]);
+
+        var arr1 = ['a', 'b'];
+        var arr2 = ['c'];
+        var arr3 = ['d', 'e'];
+        show([
+            // ES5的合并数组
+            arr1.concat(arr2, arr3), // [ 'a', 'b', 'c', 'd', 'e' ]
+            // ES6的合并数组
+            [...arr1, ...arr2, ...arr3] // [ 'a', 'b', 'c', 'd', 'e' ]
+        ]);
+    } {
+        // 2.与解构赋值结合使用
+
+        let list = [1, 2, 6, 345, 123, 15, 123];
+        // es5
+        let a1 = list[0];
+        let rest1 = list.slice(1);
+        // es6
+        let [a2, ...rest2] = list;
+
+
+        // 如果将扩展运算符用于数组赋值，只能放在参数的最后一位，否则会报错。
+        // let [first, ...middle, last] = [1, 2, 3, 4, 5]; // 报错 Rest element must be last element
+    } {
+        // 3.函数的返回值
+        // JavaScript的函数只能返回一个值，如果需要返回多个值，只能返回数组或对象。扩展运算符提供了解决这个问题的一种变通方法。
+    } {
+        // 4.字符串
+        // 扩展运算符还可以将字符串转为真正的数组。有一个重要的好处，那就是能够正确识别32位的Unicode字符。
+        function length(str) {
+            return [...str].length;
+        }
+        show([
+            'x\uD83D\uDE80y'.length, // 4
+            length('x\uD83D\uDE80y') // 3
+        ]);
+    } {
+        // 5.任何Iterator接口的对象，都可以用扩展运算符转为真正的数组
+        let nodeList = document.querySelectorAll('span');
+
+        let arrayLike = {
+            '0': 'a',
+            '1': 'b',
+            '2': 'c',
+            length: 3
+        };
+
+        show([
+            [...nodeList], // NodeList对象实现了Iterator接口。
+            Array.from(arrayLike),
+            // [...arrayLike] // 报错 类似数组的对象，但是没有部署Iterator接口，扩展运算符就会报错。
+        ]);
+    } {
+        // Map和Set结构，Generator函数
+        // 扩展运算符内部调用的是数据结构的Iterator接口，因此只要具有Iterator接口的对象，都可以使用扩展运算符
+
+        // Map结构
+        let map = new Map([
+            [1, 'one'],
+            [2, 'two'],
+            [3, 'three'],
+        ]);
+
+        // Generator函数运行后，返回一个遍历器对象
+        var go = function*() {
+            yield 1;
+            yield 2;
+            yield 3;
+        };
+
+        show([
+            [...map.keys()], // [1, 2, 3]
+            [...go()] // [1, 2, 3]
         ]);
     }
     </script>

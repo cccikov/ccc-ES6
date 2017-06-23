@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>数组的扩展 - 数组的空位</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * 数组的空位
+     *
+     * 数组的空位指，数组的某一个位置没有任何值。
+     */
+    {
+        show([
+            Array(3), // [undefined × 3] 其实就是[, , ,] 在控制台那里可以看到就只有length 并没有内容
+            [, , , ], // [undefined × 3]
+            // 空位不是undefined，一个位置的值等于undefined，依然是有值的。空位是没有任何值，in运算符可以说明这一点。
+            [undefined, undefined, undefined], //  [undefined, undefined, undefined]
+
+            // in运算符
+            0 in [undefined, undefined, undefined], // true 数组里面有属性名为0的属性
+            0 in [, , ] // false
+        ])
+    } {
+        // ES5 对空位的处理，已经很不一致了，大多数情况下会忽略空位。
+
+        // forEach(), filter(), every() 和some()都会跳过空位。
+        // map()会跳过空位，但会保留这个值
+        // join()和toString()会将空位视为undefined，而undefined和null会被处理成空字符串。
+
+        // forEach方法
+        [, 'a'].forEach((x, i) => console.log(i)); // 1
+
+        show([
+            // filter方法
+            ['a', , 0, "c", 'b'].filter(x => true), // ["a", 0, "c", "b"]
+
+            // every方法
+            [, 'a'].every(x => x === 'a'), // true 数组里面全部符合要求 即全部为"a" 计算的时候忽略空位
+
+            // some方法
+            [, 'a'].some(x => x !== 'a'), // false 数组里面有一个是不等于"a"的 但是返回false , 同样说明全部为"a" 计算的时候忽略空位
+
+            // map方法
+            [, 'a', 'b'].map(x => 1), // [,1]
+
+            // join方法
+            [, 'a', undefined, 'b', null].join(','), // ",a,,b,"
+
+            // toString方法
+            [, 'a', undefined, null].toString(), // ",a,,"
+
+        ]);
+
+    }
+    </script>
+</body>
+
+</html>
