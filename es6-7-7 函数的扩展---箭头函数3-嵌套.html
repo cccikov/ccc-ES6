@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>函数的扩展---箭头函数嵌套</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    {
+        function insert1(value) {
+            return {
+                into: function(array) {
+                    return {
+                        after: function(afterValue) {
+                            array.splice(array.indexOf(afterValue) + 1, 0, value);
+                            return array;
+                        }
+                    };
+                }
+            };
+        }
+
+        let insert2 = (value) => ({
+            into: (array) => ({
+                after: (afterValue) => {
+                    array.splice(array.indexOf(afterValue) + 1, 0, value);
+                    return array;
+                }
+            })
+        });
+
+        show([
+            insert1(2).into([1, 3]).after(1), //[1, 2, 3]
+            insert2(2).into([1, 3]).after(1) //[1, 2, 3]
+        ]);
+    }
+
+    {
+        // 下面是一个部署管道机制（pipeline）的例子，即前一个函数的输出是后一个函数的输入
+
+        const pipeline = (...funcs) => val => funcs.reduce((a, b) => b(a), val); // 这里形成一个闭包 pipeline的返回值是一个函数并且会读取pipeline函数的funcs变量 , 所以funcs会存储起来供闭包使用
+        /*const pipeline = (...funcs) => {
+            return val => {
+                return funcs.reduce((a, b) => {
+                    return b(a);
+                }, val)
+            }
+        };*/
+        /*const pipeline = function(...funcs) {
+            return function(val) { // 形成一个闭包 , 返回之中会读取funcs , 是pipeline函数的内部变量
+                return funcs.reduce(function(a, b) {
+                    return b(a);
+                }, val);
+            }
+        }*/
+
+        const plus1 = a => a + 1;
+        const mult2 = a => a * 2;
+        const addThenMult = pipeline(plus1, mult2);
+        // 这里就是返回一个函数 val => funcs.reduce((a, b) => b(a), val); 所以也有一个参数 val , 变量funcs就读取pipeline函数里面的变量(形成了闭包)
+
+        addThenMult(5); // 12
+        console.log(addThenMult(5));
+    } {
+        const plus1 = a => a + 1;
+        const mult2 = a => a * 2;
+
+        mult2(plus1(5));
+        console.log(mult2(plus1(5)));
+    } {
+        // λ演算的写法
+        fix = λf.(λx.f(λv.x(x)(v)))(λx.f(λv.x(x)(v)))
+
+        // ES6的写法
+        var fix = f => (x => f(v => x(x)(v)))(x => f(v => x(x)(v)));
+    }
+    </script>
+</body>
+
+</html>
