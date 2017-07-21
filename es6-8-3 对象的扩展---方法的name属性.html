@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>对象的扩展---方法的name属性</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * 函数的name属性，返回函数名。对象方法也是函数，因此也有name属性。
+     */
+    {
+        let person = {
+            sayName() {
+                console.log('hello!');
+            },
+        };
+
+        show([
+            person.sayName.name // "sayName"
+        ]);
+    }
+
+    /**
+     * 注意
+     */
+    {
+        // 如果对象的方法使用了取值函数（getter）和存值函数（setter），则name属性不是在该方法上面，而是该方法的属性的描述对象的get和set属性上面，返回值是方法名前加上get和set。
+        let obj = {
+            get foo() {},
+            set foo(x) {}
+        };
+        let descriptor = Object.getOwnPropertyDescriptor(obj, 'foo');
+
+        show([
+            // obj.foo.name, // Cannot read property 'name' of undefined
+            descriptor.get.name, // "get foo"
+            descriptor.set.name // "set foo"
+        ]);
+    } {
+        // 有两种特殊情况：bind方法创造的函数，name属性返回bound加上原函数的名字；Function构造函数创造的函数，name属性返回anonymous。
+        var doSomething = function() {
+            // ...
+        };
+
+        show([
+            doSomething.bind().name, // "bound doSomething"
+            (new Function()).name // "anonymous"
+        ]);
+    }
+    </script>
+</body>
+
+</html>

@@ -19,15 +19,14 @@
 
     /**
      * ES6 允许在对象之中，直接写变量。
-     * 属性名为变量名, 属性值为变量的值。
+     * 这时的属性名为变量名, 属性值为变量的值。
      */
     {
         // 例子1
         let name = "ccc";
-
         let obj = {
             name
-        };
+        }; // 属性名为 "name" 属性值为name
 
         // 等价于
         let obj2 = {
@@ -35,12 +34,122 @@
         }
 
         show([
-            obj, //{name: "ccc"}
-            obj2 //{name: "ccc"}
+            obj, // {name: "ccc"}
+            obj2 // {name: "ccc"}
         ]);
     }
+    /**
+     * 除了属性简写，方法也可以简写。
+     */
     {
+        let o = {
+            method() {
+                return "Hello!";
+            }
+        };
 
+        // 等同于
+        let o2 = {
+            method: function() {
+                return "Hello!";
+            }
+        };
+
+        show([
+            o, //
+            o2 //
+        ]);
+    }
+
+    {
+        // 属性的赋值器（setter）和取值器（getter），事实上也是采用这种写法。
+        var cart = {
+            _wheels: 4,
+            get wheels () {
+                return this._wheels;
+            },
+            set wheels (value) {
+                if (value < this._wheels) {
+                    throw new Error('数值太小了！');
+                }
+                this._wheels = value;
+            }
+        }
+    }
+
+    {
+        let birth = '2000/01/01';
+        let Person = {
+            name: '张三',
+            //等同于birth: birth
+            birth,
+            // 等同于hello: function ()...
+            hello() {
+                console.log('我的名字是', this.name);
+            }
+        };
+    }
+    /**
+     * 用途
+     */
+    {
+        // 1.作为函数返回值
+        function fn() {
+            let x = 1;
+            let y = 2;
+            return {
+                x,
+                y
+            }
+            // 等价于 return {x: x,y: y}
+        }
+        show([
+            fn()
+        ]);
+    } {
+        // 2.CommonJS模块输出变量
+        let ms = {};
+
+        function getItem(key) {
+            return key in ms ? ms[key] : null;
+        }
+
+        function setItem(key, value) {
+            ms[key] = value;
+        }
+
+        function clear() {
+            ms = {};
+        }
+
+        module.exports = {
+            getItem,
+            setItem,
+            clear
+        };
+        // 等同于
+        module.exports = {
+            getItem: getItem,
+            setItem: setItem,
+            clear: clear
+        };
+    }
+
+    /**
+     * 注意事项
+     */
+    {
+        // 简洁写法的属性名总是字符串
+        let obj = {
+            class () {}
+        };
+
+        // 等同于
+        let obj2 = {
+            "class": function() {}
+        };
+
+        // class 虽然是关键字,但是在上述代码中class是字符串,不是变量名,所以不会报错
     }
     </script>
 </body>

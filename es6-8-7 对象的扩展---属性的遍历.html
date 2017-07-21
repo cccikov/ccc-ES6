@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>对象的扩展---属性的遍历</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * 属性的遍历
+     */
+
+    function SuperClass() {
+        this.name = "super_object";
+    }
+    Object.assign(SuperClass.prototype, {
+        method() {
+            console.log("我是SuperClass实例的方法");
+        }
+    });
+
+    function subClass() {
+        this.num = 2;
+    }
+    subClass.prototype = new SuperClass();
+    subClass.prototype.constructor = subClass;
+    Object.assign(subClass.prototype, {
+        fn() {
+            console.log("我是subClass实例的方法");
+        }
+    });
+
+    let obj = new subClass();
+    Object.defineProperty(obj, 'invisible', {// 不可枚举属性
+        enumerable: false,
+        value: 'hello'
+    });
+    console.log(obj);
+
+
+    /*ES6 一共有5种方法可以遍历对象的属性。*/
+
+    /*1. for...in
+    for...in循环遍历对象自身的和继承的可枚举属性（不含 Symbol 属性）*/
+    {
+        let arr = []
+        for (let i in obj) {
+            arr.push(i);
+        }
+        show(arr); // num
+        // name
+        // constructor
+        // fn
+        // method
+
+    }
+
+    /*2. Object.keys(obj)
+    Object.keys返回一个数组，包括对象自身的（不含继承的）所有可枚举属性（不含 Symbol 属性）。*/
+    {
+        let arr = [];
+        arr = Object.keys(obj);
+        show(arr); // num
+    }
+
+    /*3. Object.getOwnPropertyNames(obj)
+    Object.getOwnPropertyNames返回一个数组，包含对象自身的所有属性（不含 Symbol 属性，但是包括不可枚举属性）。*/
+    {
+        let arr = [];
+        arr = Object.getOwnPropertyNames(obj);
+        show(arr);  // num
+                    // invisible
+    }
+
+    /*4. Object.getOwnPropertySymbols(obj)
+    Object.getOwnPropertySymbols返回一个数组，包含对象自身的所有 Symbol 属性。*/
+    {
+        let arr = [];
+        arr = Object.getOwnPropertySymbols(obj);
+        show(arr); //   因为没有 Symbol 属性
+    }
+
+    /*5. Reflect.ownKeys(obj)
+    Reflect.ownKeys返回一个数组，包含对象自身的所有属性，不管属性名是 Symbol 或字符串，也不管是否可枚举。*/
+    {
+        let arr = [];
+        arr = Reflect.ownKeys(obj);
+        show(arr);  // num
+                    // invisible
+
+        // Reflect对象以后会讲到
+    }
+
+    /*
+    以上的5种方法遍历对象的属性，都遵守同样的属性遍历的次序规则。
+
+        首先遍历所有属性名为数值的属性，按照数字排序。
+        其次遍历所有属性名为字符串的属性，按照生成时间排序。
+        最后遍历所有属性名为 Symbol 值的属性，按照生成时间排序。
+    */
+    </script>
+</body>
+
+</html>

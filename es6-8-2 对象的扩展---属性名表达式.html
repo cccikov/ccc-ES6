@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>对象的扩展---属性名表达式</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * ES6 允许字面量定义对象时，用表达式作为对象的属性名，即把表达式放在方括号内。
+     *
+     * ecmascript 与语法中 有两种读取(设置)属性的方式
+     * .  标识符  obj.foo = true;
+     * []  表达式  obj.["foo"] = true;
+     */
+    {
+        // es5时 字面量定义对象时只能使用标识符作为对象属性名
+        let obj = {
+            "foo": true,
+            abc: 123
+        };
+
+        // es6 字面量定义对象时可以使用表达式作为对象属性名
+        let key = "foo";
+        let obj2 = {
+            [key]: true,
+            ["a" + "bc"]: 123
+        }
+
+        show([
+            obj,
+            obj2
+        ]);
+    } {
+        // 表达式还可以用于定义方法名
+        let obj = {
+            ['h' + 'ello']() {
+                console.log('hi');
+            }
+        };
+
+        obj.hello() // hi
+    }
+
+    /**
+     * 注意，属性名表达式如果是一个对象，默认情况下会自动将对象转为字符串[object Object]
+     */
+    {
+        let keyA = {
+            a: 1
+        };
+        let keyB = {
+            b: 2
+        };
+
+        let myObject = {
+            [keyA]: 'valueA',
+            [keyB]: 'valueB'
+        };
+
+        show([
+            myObject // Object {[object Object]: "valueB"}
+        ]);
+        // [keyA]和[keyB]得到的都是[object Object]，所以[keyB]会把[keyA]覆盖掉，而myObject最后只有一个[object Object]属性。
+    }
+
+    </script>
+</body>
+
+</html>
