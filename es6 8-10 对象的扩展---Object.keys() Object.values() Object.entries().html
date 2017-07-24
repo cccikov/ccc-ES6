@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>对象的扩展---Object.keys() Object.values() Object.entries()</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /*Object.keys() Object.values() Object.entries() 不同于 数组的keys() values() entries() ; 这个是静态方法 , 数组的是实例方法*/
+
+    /**
+     * ES5 引入了Object.keys方法，返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键名。ES2017 引入了跟Object.keys配套的Object.values和Object.entries，作为遍历一个对象的补充手段，供for...of循环使用。
+     * Object.values方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值。
+     * Object.entries方法返回一个数组，成员是参数对象自身的（不含继承的）所有可遍历（enumerable）属性的键值对数组。
+     *
+     * 由于返回的是数组 , 也是具有Iterator接口 ; 而数组的keys() values() entries()是直接返回遍历器对象(Iterator对象) 所以两者都可以用 for...of去遍历
+     */
+
+    let obj = { name:"ccc" , gender:"female" , age :13};
+    let arr = [100, 200 ,300];
+    show([
+        Object.keys(obj), // ["name", "gender", "age"]
+        Object.values(obj), // ["ccc", "female", 13]
+        Object.entries(obj), // [["name","ccc"],["gender","female"],["age",13]]
+        arr.keys(), // Array Iterator {}
+        // arr.values(), // chrome 还没有实现
+        arr.entries() // Array Iterator {}
+    ]);
+
+    {
+        let {keys,values,entries} = Object;// 解析赋值 分别获取 Object.keys() Object.values() Object.entries()
+        let {keys:arr_keys,values:arr_values,entries:arr_entries} = [];// 解析赋值 分别获取 arrObject.keys() arrObject.values() arrObject.entries()
+
+        for(let i of keys(obj)){
+            console.log(i);
+        }
+        for(let key of values(obj)){
+            console.log(key);
+        }
+        for(let i_key of entries(obj)){
+            console.log(i_key);
+        }
+        for(let [i,key] of entries(obj)){
+            console.log(i,key);
+        }
+
+        console.log("-----------------");
+
+        for(let i of arr_keys.call(arr)){
+            console.log(i);
+        }
+        for(let i_key of arr_entries.call(arr)){
+            console.log(i_key);
+        }
+        for(let [i,key] of arr_entries.call(arr)){
+            console.log(i,key);
+        }
+    }
+    </script>
+</body>
+
+</html>

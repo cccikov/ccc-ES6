@@ -25,14 +25,31 @@
         let obj = {
             foo: 123
         };
-        let des = Object.getOwnPropertyDescriptor(obj, 'foo');
-        console.log(des);
-        // {
-        //     configurable: true
-        //     enumerable: true
-        //     value: 123
-        //     writable: true
-        // }
+        Object.defineProperty(obj,"name",{ // 用这种方式定义属性 默认enumerable为false
+            value:"ccc"
+        });
+        Object.defineProperty(obj,"sayHi",{
+            value:function(){
+                console.log(this.foo);
+            }
+        });
+
+        obj.sayHi(); // 123
+
+        let desFoo = Object.getOwnPropertyDescriptor(obj, 'foo');
+        let desName = Object.getOwnPropertyDescriptor(obj, 'name');
+        show([
+            desFoo,
+                    // {
+                    //     configurable: true
+                    //     enumerable: true
+                    //     value: 123
+                    //     writable: true
+                    // }
+            desFoo.enumerable, // true
+            desName.enumerable // false
+        ]);
+
 
         // 描述对象的enumerable属性，称为”可枚举性“，如果该属性为false，就表示不可枚举 , 某些操作会忽略当前属性。
 

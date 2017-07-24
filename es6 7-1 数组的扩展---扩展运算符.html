@@ -27,43 +27,6 @@
         console.log("");
     }
 
-
-    /**
-     * rest 参数
-     *
-     * ES6 引入 rest 参数（形式为“...变量名”），用于获取函数的多余参数，这样就不需要使用arguments对象了。rest 参数搭配的变量是一个数组，该变量将多余的参数放入数组中。
-     */
-    {
-        function add(...values) { //这里只有rest参数可以采用 [].slice.call(arguments)代替
-            let sum = 0;
-            let sum2 = 0;
-            for (let val of values) {
-                sum += val;
-            }
-            for (let name in values) {
-                sum2 += values[name];
-            }
-            console.log(sum, sum2);
-        }
-        add(1, 2, 3, 4); // 10 10
-
-        function fn(a, b, c, ...arg) {
-            console.log(a, b, c, arg);
-        }
-        fn(1, 2, 3, 4, 5, 6, 7, 8); // 1 2 3  [4, 5, 6, 7, 8]
-
-        // 注意，rest 参数之后不能再有其他参数（即只能是最后一个参数），否则会报错。
-        /*function foo(a,...b,c){ // Rest parameter must be last formal
-        }*/
-
-        //函数的length属性，不包括 rest 参数
-        show([
-            (function(a) {}).length, // 1
-            (function(...a) {}).length, // 0
-            (function(a, ...b) {}).length // 1
-        ]);
-    }
-
     /**
      * 扩展运算符
      *
@@ -72,13 +35,13 @@
      */
     {
         function fn(...arg) {
-            console.log(...arg); // 调用console.log时作为参数传入
+            console.log(arg,...arg); // 调用console.log时作为参数传入
         }
-        fn(1, 23, 3, 4, 5, 6); // 1 23 3 4 5 6
+        fn(1, 23, 3, 4, 5, 6); //  [1, 23, 3, 4, 5, 6]  1 23 3 4 5 6
 
         show([
-            ...[1, 2, 3, 4]
-        ]); // 1 2 3 4
+            ...[1, 2, 3, 4] // 1 2 3 4
+        ]);
 
         // 在扩展运算符出现以前 , 要将一个数组转为用逗号分隔的参数序列 , 就要采用apply调用 , apply的第二个参数是一个数组
         function f(x, y, z) {
@@ -133,12 +96,20 @@
         // 2.与解构赋值结合使用
 
         let list = [1, 2, 6, 345, 123, 15, 123];
+
         // es5
         let a1 = list[0];
         let rest1 = list.slice(1);
+
         // es6
         let [a2, ...rest2] = list;
+        let [a3, rest3] = list;
 
+        show([
+            rest1, // [2, 6, 345, 123, 15, 123]
+            rest2, // [2, 6, 345, 123, 15, 123]
+            rest3 // 2
+        ])
 
         // 如果将扩展运算符用于数组赋值，只能放在参数的最后一位，否则会报错。
         // let [first, ...middle, last] = [1, 2, 3, 4, 5]; // 报错 Rest element must be last element

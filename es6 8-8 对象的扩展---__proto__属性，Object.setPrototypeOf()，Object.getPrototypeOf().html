@@ -87,15 +87,15 @@
      * Object.setPrototypeOf(object, prototype)
      */
     {
-        let o = Object.setPrototypeOf({}, Person.prototype);
+        let o = Object.setPrototypeOf({}, Person.prototype); // 把 {} 的prototype 指向 Person.prototype
 
         // 等同于
         let obj = {};
         obj.__proto__ = Person.prototype;
 
         show([
-            o,
-            obj
+            o, // Person {}
+            obj // Person {}
         ]);
 
         //如果第一个参数不是对象，会自动转为对象。但是由于返回的还是第一个参数，所以这个操作不会产生任何效果。如果是undefined 和 null 由于无法转化为对象,所以作为第一个参数时会报错
@@ -105,6 +105,21 @@
             Object.setPrototypeOf(true, {}) === true, // true
             // Object.setPrototypeOf(undefined, {}),
             // Object.setPrototypeOf(null, {})
+        ]);
+    }
+
+
+    /**
+     * Object.getPrototypeOf()
+     * 与Object.setPrototypeOf方法配套，用于读取一个对象的原型对象。
+     */
+    {
+        let man = new Person();
+
+        show([
+            Object.getPrototypeOf(man), // Object {happy: function, constructor: function}
+            Person.prototype, // Object {happy: function, constructor: function}
+            Object.getPrototypeOf(man) === Person.prototype // true
         ]);
     }
     </script>
