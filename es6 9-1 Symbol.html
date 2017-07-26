@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Symbol</title>
+</head>
+
+<body>
+    <p>
+        ES5 的对象属性名都是字符串，这容易造成属性名的冲突。比如，你使用了一个他人提供的对象，但又想为这个对象添加新的方法（mixin 模式），新方法的名字就有可能与现有方法产生冲突。如果有一种机制，保证每个属性的名字都是独一无二的就好了，这样就从根本上防止属性名的冲突。这就是 ES6 引入Symbol的原因。
+    </p>
+    <p>
+        ES6 引入了一种新的原始数据类型Symbol，表示独一无二的值。它是 JavaScript 语言的第七种数据类型，前六种是：undefined、null、布尔值（Boolean）、字符串（String）、数值（Number）、对象（Object）。(这里把数组也算进对象里面了,是根据 typeof 结果分的)
+    </p>
+    <p>
+        Symbol 值通过Symbol函数生成。这就是说，对象的属性名现在可以有两种类型，一种是原来就有的字符串，另一种就是新增的 Symbol 类型。凡是属性名属于 Symbol 类型，就都是独一无二的，可以保证不会与其他属性名产生冲突。
+    </p>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * Symbol
+     */
+    {
+        let s = Symbol();
+        console.log(typeof s); // symbol
+        // Symbol函数前不能使用new命令，否则会报错。这是因为生成的 Symbol 是一个原始类型的值，不是对象。
+
+        // 其实 String Boolean Number 都不要使用new ,否则会变成对象 , 而不是基本数据类型
+        show([
+            Number(1), // 1
+            new Number(1), // Number {[[PrimitiveValue]]: 1}
+            String("hi"), // hi
+            new String("hi"), // String {0: "h", 1: "i", length: 2, [[PrimitiveValue]]: "hi"}
+            Boolean(false), // false
+            new Boolean(false), // Boolean {[[PrimitiveValue]]: false}
+        ]);
+    }
+
+    /*Symbol函数可以接受一个字符串作为参数(或者转化为字符串)，表示对 Symbol 实例的描述，主要是为了在控制台显示，或者转为字符串时，比较容易区分。*/
+    {
+        show([
+            Symbol('foo'), // Symbol(foo)
+            Symbol('bar'), // Symbol(bar)
+
+            // 如果 Symbol 的参数是一个对象，就会调用该对象的toString方法，将其转为字符串，然后才生成一个 Symbol 值。
+            Symbol({
+                toString() {
+                    return "这个对象的toSting方法";
+                }
+            }), // Symbol(这个对象的toSting方法)
+            Symbol(1), // Symbol(1)
+            Symbol(false), // Symbol(false)
+
+
+            // 参数只是为了让开发者容易区分 , 由于Symbol特性，都是独一无二的值
+            Symbol() == Symbol(), // false
+            Symbol('foo') == Symbol('foo'), // false
+        ]);
+    }
+
+    /*Symbol 值不能 隐式转换为字符串,可以显式转换为字符串 可以转化为布尔值 不可以转化为数值(boolean)*/
+    {
+        let symbol = Symbol("symbol_1");
+
+        show([
+            // "your symbol is " + symbol, // 隐式转换为字符串失败 , 报错: Cannot convert a Symbol value to a string
+            symbol.toString(), // "Symbol(symbol_1)"
+            String(symbol), // "Symbol(symbol_1)" 显式转换成功
+
+            Boolean(symbol), // true
+            !symbol,  // false
+
+            // Number(symbol), // 报错 Cannot convert a Symbol value to a number
+            // symbol + 1 // 报错 Cannot convert a Symbol value to a number
+        ]);
+    }
+
+
+
+
+
+    /**
+     * Symbol.for()，Symbol.keyFor()
+     */
+    {
+        show([
+            Symbol.for('foo') == Symbol.for('foo'),
+            Symbol.for('foo') == Symbol('foo'),
+            Symbol.keyFor(Symbol.for('foo')),
+            Symbol.keyFor(Symbol('foo')),
+        ])
+    }
+    </script>
+</body>
+
+</html>
