@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>对象的扩展---Object.getOwnPropertyDescriptors()</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(obj) {
+        console.log("");
+        for (let i in obj) {
+            console.log(i + "", obj[i]);
+        }
+        console.log("");
+    }
+
+    function Person() {
+        Object.defineProperties(this, Object.getOwnPropertyDescriptors({
+            get name() {
+                return "ccc";
+            },
+            set name(value) {
+                console.error("name 属性只是可读");
+            },
+            age: 16,
+            gender: "female"
+        }));
+    }
+    Person.prototype.sayHi = function() {
+        console.log("hi");
+    }
+
+    /**
+     * Object.getOwnPropertyDescriptors()
+     *
+     * es5 - Object.getOwnPropertyDescriptor()  返回对象某个属性的描述对象
+     * es6 - Object.getOwnPropertyDescriptors() 返回对象所有属性的描述对象
+     */
+
+    {
+        let obj = {
+            p: "a",
+            name: "ccc",
+            sayHi: function() {
+                console.log("hi");
+            }
+        }
+
+        show({
+            "es5": Object.getOwnPropertyDescriptor(obj, 'p'),
+            // {value: "a", writable: true, enumerable: true, configurable: true}
+            "es6": Object.getOwnPropertyDescriptors(obj),
+            // {
+            //     "p": {
+            //         "value": "a",
+            //         "writable": true,
+            //         "enumerable": true,
+            //         "configurable": true
+            //     },
+            //     "name": {
+            //         "value": "ccc",
+            //         "writable": true,
+            //         "enumerable": true,
+            //         "configurable": true
+            //     },
+            //     "sayHi": {
+            //         "value": function()
+            //         "writable": true,
+            //         "enumerable": true,
+            //         "configurable": true
+            //     }
+            // }
+        });
+    }
+
+
+    /*该方法的引入目的，主要是为了解决Object.assign()无法正确拷贝get属性和set属性的问题。*/
+    {
+        let obj = {
+            set foo(value) {
+                console.log(value);
+            }
+        }
+        let target = {};
+
+        show([
+            Object.assign(target, obj),
+            // {
+            //     foo: undefined
+            // }
+            Object.getOwnPropertyDescriptor(obj, 'foo'),
+            // {
+            //     configurable: true
+            //     enumerable: true
+            //     get: undefined
+            //     set: function foo(value)
+            // }
+            Object.getOwnPropertyDescriptor(target, 'foo')
+            // {
+            //     configurable: true
+            //     enumerable: true
+            //     value: undefined
+            //     writable: true
+            // }
+        ]);
+        // 会发现拷贝过来的foo属性的属性描述对象不一样
+        // 这是因为Object.assign方法总是拷贝一个属性的值，而不会拷贝它背后的赋值方法或取值方法。
+    } {
+        let obj = {
+            set foo(value) {
+                console.log(value);
+            }
+        };
+
+        let target = {};
+
+        show([
+            Object.defineProperties(target, Object.getOwnPropertyDescriptors(obj)), // 把obj里面的的属性设置到target中,相当将obj拷贝到target中
+            Object.getOwnPropertyDescriptor(target, 'foo'),
+            // { get: undefined,
+            //   set: [Function: foo],
+            //   enumerable: true,
+            //   configurable: true }
+        ]);
+        var shallowMerge = (target, source) => Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+    }
+
+    /*Object.getOwnPropertyDescriptors方法的另一个用处，是配合Object.create方法，将对象属性克隆到一个新对象。这属于浅拷贝*/
+    {
+        let person = new Person();
+        person.name = "tomato";
+
+
+        let obj = {
+            "name": "tomato",
+            age: 18,
+            gender: "female",
+            des: "pretty girl"
+        }
+        let person2 = Object.create(Person.prototype, Object.getOwnPropertyDescriptors(obj)); // Object.create第二参数就是要用属性描述符去定义属性的.
+
+        show([
+            person,
+            person2,
+            Object.assign(
+                Object.create(Person.prototype), {
+                    foo: 123,
+                }
+            )
+        ]);
+    }
+
+
+
+
+    /**
+     * 到现在为止 es6 让一个对象成为一个类的实例写法
+     */
+    {
+        // 1
+        let obj = {
+            __proto__: Person.prototype,
+            foo: 123,
+        };
+        show([
+            obj
+        ]);
+    } {
+        // 2
+        let obj = Object.create(Person.prototype);
+        obj.foo = 123;
+
+        show([
+            obj
+        ]);
+    } {
+        // 3
+        let obj = Object.assign(
+            Object.create(Person.prototype), {
+                foo: 123,
+            }
+        );
+        let obj2 = Object.create(
+            Person.prototype,
+            Object.getOwnPropertyDescriptors({
+                foo: 123,
+            })
+        );
+
+        show([
+            obj,
+            obj2
+        ]);
+    }
+    </script>
+</body>
+
+</html>

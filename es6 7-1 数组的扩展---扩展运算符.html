@@ -17,7 +17,6 @@
     <span></span>
     <span></span>
     <span></span>
-
     <script type="text/javascript">
     function show(arr) {
         console.log("");
@@ -40,7 +39,7 @@
 
 
         function fn(...arg) {
-            console.log(arg,...arg); // 调用console.log时作为参数传入
+            console.log(arg, ...arg); // 调用console.log时作为参数传入
         }
         fn(1, 23, 3, 4, 5, 6); //  [1, 23, 3, 4, 5, 6]  1 23 3 4 5 6
 
@@ -105,13 +104,14 @@
         let rest1 = list.slice(1);
 
         // es6
-        let [a2, ...rest2] = list;
+        let [a2, ...rest2] = list; // 扩展运算符的语法是 ...arrayObject , 所以rest2是一个数组 , ...rest2是这个数组 的 内容逗号分隔形式 解构对应后面list数组内容
         let [a3, rest3] = list;
+        // let [a4, ...rest4, b4] = list; // 报错 Rest element must be last element , 其实这样解构赋值用法 相当于 rest参数 所以只能放在最后
 
         show([
             rest1, // [2, 6, 345, 123, 15, 123]
             rest2, // [2, 6, 345, 123, 15, 123]
-            rest3 // 2
+            rest3, // 2
         ])
 
         // 如果将扩展运算符用于数组赋值，只能放在参数的最后一位，否则会报错。
