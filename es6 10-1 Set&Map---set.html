@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Set&Map---set</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    // 上面代码中，entries方法返回的遍历器，同时包括键名和键值，所以每次输出一个数组，它的两个成员完全相等。
+
+    // Set 结构的实例默认可遍历，它的默认遍历器生成函数就是它的values方法。
+    {
+        show([
+            Set.prototype[Symbol.iterator] === Set.prototype.values, // true
+            // 这意味着，可以省略values方法，直接用for...of循环遍历 Set。
+        ]);
+
+        let set = new Set(['red', 'green', 'blue']);
+        for (let x of set) {
+          console.log(x);
+        }
+    }
+    </script>
+</body>
+
+</html>
