@@ -30,6 +30,13 @@ gulp.task('browser-sync', function() {
         server: {
             baseDir: browserSyncRootPath,
             index:browserSyncIndex
+        },
+        port: 5000,
+        ui: {// ui的默认端口
+            port: 5001,
+            weinre: { // 不知道什么鬼 "weinre"好像也是用于远程调试的nodejs工具
+                port: 5002
+            }
         }
     });
     gulp.watch(browserSyncPath).on("change", reload);
