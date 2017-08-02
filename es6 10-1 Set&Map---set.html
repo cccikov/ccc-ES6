@@ -112,21 +112,68 @@
         //  ["red", "red"]
         //  ["green", "green"]
         //  ["blue", "blue"]
-    }
-    // 上面代码中，entries方法返回的遍历器，同时包括键名和键值，所以每次输出一个数组，它的两个成员完全相等。
 
-    // Set 结构的实例默认可遍历，它的默认遍历器生成函数就是它的values方法。
-    {
+        /*上面代码中，entries方法返回的遍历器，同时包括键名和键值，所以每次输出一个数组，它的两个成员完全相等。*/
+
+        // Set 结构的实例默认可遍历，它的默认遍历器生成函数就是它的values方法。
         show([
             Set.prototype[Symbol.iterator] === Set.prototype.values, // true
-            // 这意味着，可以省略values方法，直接用for...of循环遍历 Set。
+            /*这意味着，可以省略values方法，直接用for...of循环遍历 Set*/
         ]);
 
-        let set = new Set(['red', 'green', 'blue']);
         for (let x of set) {
             console.log(x);
         }
+        //  red
+        //  green
+        //  blue
+
+
+        /*forEach*/
+        set.forEach((value, key) => console.log(value, key));
+        //  red red
+        //  green green
+        //  blue blue
+
     }
+
+    // 遍历的应用
+    {
+        //扩展运算符（...）内部使用for...of循环，所以也可以用于 Set 结构。
+        let a = new Set([1, 2, 3]);
+        let b = new Set([4, 3, 2]);
+
+        // 并集
+        let union = new Set([...a, ...b]);
+        // Set {1, 2, 3, 4}
+
+        // 交集
+        let intersect = new Set([...a].filter(x => b.has(x)));
+        // set {2, 3}
+
+        // 差集
+        let difference = new Set([...a].filter(x => !b.has(x)));
+        // Set {1}
+
+        show([
+            union,intersect,difference
+        ]);
+
+
+        /*想要在遍历操作中改变Set的值*/
+        {
+            // 方法一
+            let set = new Set([1, 2, 3]);
+            set = new Set([...set].map(val => val * 2));
+            // set的值是2, 4, 6
+        }{
+            // 方法二
+            let set = new Set([1, 2, 3]);
+            set = new Set(Array.from(set, val => val * 2));
+            // set的值是2, 4, 6
+        }
+    }
+
     </script>
 </body>
 

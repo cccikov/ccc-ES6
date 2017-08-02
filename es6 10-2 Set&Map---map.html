@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Set&Map---map</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+    /**
+     * Map 数据结构
+     *
+     * JavaScript 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。
+     * ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。
+     *
+     * 对象   字符串-值
+     * Map    值-值
+     */
+    {
+        /*传统对象*/
+        let obj = {};
+        let data = {};
+        data[obj] = "对象";
+        show([
+            data[obj], // 对象
+            data[{}], // 对象
+            data[{
+                "name": "ccc"
+            }], // 对象
+            data["[object Object]"], // 对象
+        ]);
+        // 由于对象只接受字符串作为键名，所以任何对象被自动转为字符串"[object Object]" , 所以任何对象都是读取属性"[object Object]"的值
+    }
+
+    {
+        /*map结构*/
+        let map = new Map();
+        let obj = {};
+
+        /**
+         * Map  实例的属性和操作方法
+         *
+         * 1. size属性 size属性返回 Map 结构的成员总数。
+         * 2. set(key, value) set方法设置键名key对应的键值为value，然后返回整个 Map 结构。如果key已经有值，则键值会被更新，否则就新生成该键。
+         * 3. get(key) get方法读取key对应的键值，如果找不到key，返回undefined。
+         * 4. has(key) has方法返回一个布尔值，表示某个键是否在当前 Map 对象之中。
+         * 5. delete(key) delete方法删除某个键，返回true。如果删除失败，返回false。
+         * 6. clear() clear方法清除所有成员，没有返回值。
+         */
+        show([
+            map, // {Object {} => "我的键名是个对象"}
+            typeof map, // object
+            map.set(obj, "我的键名是个对象"), // // {Object {} => "我的键名是个对象"}
+            map.get(obj), // 我的键名是个对象
+            map.has(obj), // true
+            // map.delete(obj), // true
+            map.has(obj), // false
+            // map.clear() // undefined
+        ]);
+    }
+
+
+    {
+        /*作为构造函数，Map 也可以接受一个数组作为参数。该数组的成员是一个个表示键值对的数组。*/
+        let map = new Map([
+            ['name', '张三'],
+            ['title', 'Author']
+        ]);
+
+        console.log(map); // Map(2) {"name" => "张三", "title" => "Author"}
+
+        {
+            // 实际是执行以下算法
+            const items = [
+                ['name', '张三'],
+                ['title', 'Author']
+            ];
+            const map = new Map();
+            items.forEach(
+                ([key, value]) => map.set(key, value)
+            );
+        }
+
+        // 事实上，不仅仅是数组，任何具有 Iterator 接口、且每个成员都是一个双元素的数组的数据结构（详见《Iterator》一章）都可以当作Map构造函数的参数。这就是说，Set和Map都可以用来生成新的 Map。
+        let set = new Set([
+            ['foo', 1],
+            ['bar', 2]
+        ]);
+        let set_map = new Map(set);
+
+        let map_map = new Map(map);
+
+        show([
+            set_map, // {"foo" => 1, "bar" => 2}
+            map_map // {"name" => "张三", "title" => "Author"}
+        ]);
+    }
+
+
+    {
+        /*如果对同一个键多次赋值，后面的值将覆盖前面的值。*/
+        let map = new Map();
+        map.set(1, '第一次')
+            .set(1, '第二次'); // set方法返回的是当前的Map对象，因此可以采用链式写法。
+        console.log(map.get(1)); // 第二次
+    }
+
+
+    {
+        /*Map 的键实际上是跟内存地址绑定的，只要内存地址不一样，就视为两个键。*/
+        /*如果 Map 的键是一个简单类型的值（数字、字符串、布尔值），则只要两个值严格相等，Map 将其视为一个键，包括0和-0，布尔值true和字符串true则是两个不同的键。另外，undefined和null也是两个不同的键。虽然NaN不严格相等于自身，但 Map 将其视为同一个键。*/
+        let map = new Map();
+
+        map.set({}, "对象键");
+        map.set({}, "新对象键"); // 虽然两个 {} 值相同 , 但是内存地址不一样是个新对象 , 所以键也不一样
+
+        map.set(0, "正0");
+        map.set(-0, "负0"); // 0 -0 视为同一个键
+
+        map.set(undefined, "undefined");
+
+        map.set(null, "null");
+
+        map.set(NaN, "NaN1");
+        map.set(NaN, "NaN2"); // NaN之间视为同一个键
+
+        console.log(map); // {Object => "对象键", Object => "新对象键", 0 => "负0", undefined => "undefined", null => "null", NaN => "NaN2"}
+    }
+
+
+    /*
+     * 遍历方法
+     * Map 结构原生提供三个遍历器生成函数和一个遍历方法。
+     *
+     *  keys()：返回键名的遍历器。
+     *  values()：返回键值的遍历器。
+     *  entries()：返回所有成员的遍历器。
+     *  forEach()：遍历 Map 的所有成员。
+     * 需要特别注意的是，Map 的遍历顺序就是插入顺序。
+     */
+
+    {
+        let map = new Map([
+            ['F', 'no'],
+            ['T', 'yes'],
+        ]);
+
+        for (let key of map.keys()) {
+            console.log(key);
+        }
+        // "F"
+        // "T"
+
+        for (let value of map.values()) {
+            console.log(value);
+        }
+        // "no"
+        // "yes"
+
+        for (let item of map.entries()) {
+            console.log(item[0], item[1]);
+        }
+        // "F" "no"
+        // "T" "yes"
+
+        // 或者
+        for (let [key, value] of map.entries()) {
+            console.log(key, value);
+        }
+        // "F" "no"
+        // "T" "yes"
+
+
+        show([
+            map[Symbol.iterator] === map.entries, // true
+        ]);
+        // 上述表明  Map 结构的默认遍历器接口（Symbol.iterator属性），就是entries方法。
+
+        // 等同于使用map.entries()
+        for (let [key, value] of map) {
+            console.log(key, value);
+        }
+        // "F" "no"
+        // "T" "yes"
+
+
+        // 由于 keys, values, entries 方法返回都是 iterator接口的遍历器 , 所以可以对接口使用扩展运算符
+        show([
+            [...map], // [['F', 'no'], ['T', 'yes']]
+            [...map.keys()], // ["F", "T"]
+            [...map.values()], // ["no", "yes"]
+            [...map.entries()], // [['F', 'no'], ['T', 'yes']]
+        ]);
+
+
+        // 结合扩展运算符 , 可以对Map结构进行遍历操作和过滤
+        {
+            let map0 = new Map()
+                .set(1, 'a')
+                .set(2, 'b')
+                .set(3, 'c');
+
+            let map1 = new Map(
+                [...map0].filter(([k, v]) => k < 3)
+            );
+            // 产生 Map 结构 {1 => 'a', 2 => 'b'}
+
+            let map2 = new Map(
+                [...map0].map(([k, v]) => [k * 2, '_' + v])
+            );
+            // 产生 Map 结构 {2 => '_a', 4 => '_b', 6 => '_c'}
+
+            show([
+                map0, // {1 => "a", 2 => "b", 3 => "c"}
+                map1, // {1 => "a", 2 => "b"}
+                map2 // {2 => "_a", 4 => "_b", 6 => "_c"}
+            ]);
+        }
+
+        // Map 还有一个forEach方法，与数组的forEach方法类似，也可以实现遍历。
+        map.forEach(function(value, key, _this) {
+            console.log("Key: %s, Value: %s", key, value, _this);
+        });
+        // Key: F, Value: no Map(2) {"F" => "no", "T" => "yes"}
+        // Key: T, Value: yes Map(2) {"F" => "no", "T" => "yes"}
+
+        //forEach方法还可以接受第二个参数，用来绑定this。
+        var arr = [];
+        map.forEach(function(value, key, map) {
+            this.push(value);
+        }, arr);
+        console.log(arr); // ["no", "yes"]
+    }
+
+
+
+    /*与其他数据结构的互相转换*/
+    {
+        const myMap = new Map().set(true, 7).set({
+            foo: 3
+        }, ['abc']);
+
+        // 1. Map 转为数组
+        {
+            // 扩展运算符（...）; Array.from
+            show([
+                [...myMap], // [[true, 7], [{ foo: 3 }, [ 'abc' ]]]
+                Array.from(myMap) // [[true, 7], [{ foo: 3 }, [ 'abc' ]]]
+            ]);
+        }
+
+        // 2. 数组 转为 Map
+        {
+            // Map 构造函数
+            show([
+                new Map([
+                    [true, 7],
+                    [{
+                            foo: 3
+                        },
+                        ['abc']
+                    ]
+                ]) // Map(2) {true => 7, {…} => Array(1)}
+            ]);
+        }
+
+        // 3. Map 转为对象
+        // 如果所有 Map 的键都是字符串，它可以转为对象。
+        {
+            function mapToObj(map) {
+                let obj = Object.create(null);
+                for (let [k, v] of map) {
+                    obj[k] = v;
+                }
+                return obj;
+            }
+
+            const myMap = new Map()
+                .set('yes', true)
+                .set('no', false);
+
+            show([
+                mapToObj(myMap), // {yes: true, no: false}
+            ]);
+        }
+
+        // 4. 对象转为 Map
+        {
+            function objToStrMap(obj) {
+                let strMap = new Map();
+                for (let k of Object.keys(obj)) {
+                    strMap.set(k, obj[k]);
+                }
+                return strMap;
+            }
+
+            show([
+                objToStrMap({
+                    yes: true,
+                    no: false
+                })
+            ]);
+        }
+
+        // json Map 互换
+        // json 转 Map 其实就是 数组转Map 或者 对象转Map
+        // Map 转 json 可根据Map的键名是否都是字符串 是-Map转对象  不是-Map转数组
+
+    }
+    </script>
+</body>
+
+</html>
