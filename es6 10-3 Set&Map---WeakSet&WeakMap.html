@@ -144,7 +144,7 @@
 
     {
         // 前文说过，WeakMap 应用的典型场合就是 DOM 节点作为键名。下面是一个例子。
-        let myElement = document.getElementById('logo');
+        let myElement = document.getElementById('foo');
         let myWeakmap = new WeakMap();
 
         myWeakmap.set(myElement, {
@@ -163,6 +163,15 @@
         // 进一步说，注册监听事件的listener对象，就很合适用 WeakMap 实现。
 
         const listener = new WeakMap();
+        const element1 = document.getElementById("foo");
+        const element2 = document.getElementById("bar");
+
+        function handler1(){
+            return "我是操作1";
+        }
+        function handler2(){
+            return "我是操作2";
+        }
 
         listener.set(element1, handler1);
         listener.set(element2, handler2);
