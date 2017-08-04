@@ -203,13 +203,21 @@
     {
         var handler = {
             apply(target, ctx, args) {
-                console.log(target, ctx, args)
-                return Reflect.apply(...arguments);
+                console.log(target, ctx, args,[...arguments])
+                return Reflect.apply(...arguments); // arguments是apply函数的参数列表 不是target的 ; 包含了target, ctx, args 以及更多的参数(虽然不怎么可能,因为这个apply是js语言内调用的,传进来的参数就这几个)
             }
         };
-        var target = function () { return 'I am the target'; };
-        let proxy = new Proxy(target,handler);
-        proxy();
+        var target = function() {
+            return 'I am the target';
+        };
+        let proxy = new Proxy(target, handler);
+
+        show([
+            proxy(1,2), // I am the target
+            // ƒ () { return 'I am the target'; } undefined [1, 2] [ƒ, undefined, Array(2)]
+
+        ])
+
     }
     </script>
 </body>
