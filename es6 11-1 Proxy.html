@@ -129,6 +129,11 @@
      */
 
 
+
+
+
+
+
     // get(target, propKey, receiver)
     {
         // get方法用于拦截某个属性的读取操作。
@@ -149,6 +154,20 @@
         proxy.name // "张三"
             // proxy.age // 抛出一个错误
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // set(target, propKey, value, receiver)
     {
@@ -175,7 +194,7 @@
 
         {
             // 例子 有些私有属性
-            var handler = {
+            let handler = {
                 set(target, key, value) {
                     if (key[0] === '_') {
                         throw new Error(`Invalid attempt to set private "${key}" property`);
@@ -185,7 +204,7 @@
                 }
             };
 
-            var proxy = new Proxy({
+            let proxy = new Proxy({
                 _name: "ccc",
             }, handler);
 
@@ -199,16 +218,30 @@
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // apply(target, object, args)
     {
         //apply方法拦截函数的调用、call和apply操作
-        var handler = {
+        let handler = {
             apply(target, ctx, args) {
                 console.log(target, ctx, args, [...arguments])
                 return Reflect.apply(...arguments); // arguments是apply函数的参数列表 不是target的 ; 包含了target, ctx, args 以及更多的参数(虽然不怎么可能,因为这个apply是js语言内调用的,传进来的参数就这几个)
             }
         };
-        var target = function() {
+        let target = function() {
             return 'I am the target';
         };
         let proxy = new Proxy(target, handler);
@@ -219,6 +252,20 @@
             // I am the target
         ]);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // has()
@@ -299,6 +346,20 @@
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // deleteProperty()
     {
         // deleteProperty方法用于拦截delete操作，deleteProperty 必须返回一个 Boolean 类型的值，表示了该属性是否被成功删除。
@@ -328,10 +389,471 @@
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // defineProperty()
     {
         // defineProperty 方法拦截了Object.defineProperty操作。
+
+
+        let target = {
+            "gender": "female"
+        };
+
+
+        {
+            let handler = {
+                defineProperty(target, key, descriptor) {
+                    // console.log(target, key, descriptor);
+                    // Object.defineProperty(...arguments); // 正常
+                    return false;
+                }
+            };
+            let proxy = new Proxy(target, handler);
+
+
+            // Object.defineProperty(proxy,"name",{ value:"ccc" }); // 报错 Uncaught TypeError: 'defineProperty' on proxy: trap returned falsish for property 'name'
+
+            // Object.defineProperty(proxy,"gender",{ value:"male" }); // 就算是原本就有的属性也会报错
+
+            show([
+                proxy.age = 18, // 18 虽然不可设置 但是没有报错
+                proxy // Proxy {}
+            ]);
+        }
+
+
+        {
+            Object.preventExtensions(target); // 对象变的不可扩展
+
+            let handler = {
+                defineProperty(target, key, descriptor) {
+                    // console.log(target, key, descriptor);
+                    // Object.defineProperty(...arguments); // 正常
+                    return true;
+                }
+            };
+
+            let proxy = new Proxy(target, handler);
+
+            // Object.defineProperty(proxy, "name", { value: "ccc" }); //报错 'defineProperty' on proxy: trap returned truish for adding property 'name' to the non-extensible proxy target 如果目标对象不可扩展（extensible），则defineProperty不能增加目标对象上不存在的属性，否则会报错。
+
+            Object.defineProperty(proxy, "gender", {
+                value: "male"
+            }); // 虽然没有报错 但是在handler的defineProperty函数里面也没有设置值 , 所以没有修改成功
+
+
+            // 另外，如果目标对象的某个属性不可写（writable）或不可配置（configurable），则defineProperty方法不得改变这两个设置。
+
+            show([
+                proxy // Proxy {}
+            ]);
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // getOwnPropertyDescriptor()
+    {
+        // getOwnPropertyDescriptor方法拦截Object.getOwnPropertyDescriptor()，返回一个属性描述对象或者undefined。
+        let handler = {
+            getOwnPropertyDescriptor(target, key) {
+                if (key[0] === '_') {
+                    return; // 私有变量return undefined
+                }
+                return Object.getOwnPropertyDescriptor(target, key);
+            }
+        };
+
+        let target = {
+            _foo: 'bar',
+            baz: 'tar'
+        };
+        let proxy = new Proxy(target, handler);
+
+        show([
+            Object.getOwnPropertyDescriptor(proxy, 'wat'),
+            // undefined  没有这个属性所以返回undefined
+            Object.getOwnPropertyDescriptor(proxy, '_foo'),
+            // undefined   handler.getOwnPropertyDescriptor方法对于第一个字符为下划线的属性名会返回undefined。
+            Object.getOwnPropertyDescriptor(proxy, 'baz')
+            // {value: "tar", writable: true, enumerable: true, configurable: true}
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // getPrototypeOf()
+    {
+        // getPrototypeOf方法主要用来拦截获取对象原型。具体来说，拦截下面这些操作。
+        //      Object.prototype.__proto__
+        //      Object.prototype.isPrototypeOf()
+        //      Object.getPrototypeOf()
+        //      Reflect.getPrototypeOf()
+        //      instanceof
+
+        // getPrototypeOf方法的返回值必须是对象或者null，否则报错。另外，如果目标对象不可扩展（extensible）， getPrototypeOf方法必须返回目标对象的原型对象。
+
+        function Person() {};
+        let person = new Person();
+        let proxy = new Proxy({}, {
+            getPrototypeOf(target) {
+                return Person.prototype; // 这个应该是原型Person.prototype 不是构造函数Person
+            }
+        });
+        show([
+            proxy, // Proxy{} 显示是Proxy的实例
+
+            proxy.__proto__ === Person.prototype, // true
+            Object.prototype.isPrototypeOf(Person), // true
+            Object.getPrototypeOf(proxy) === Person.prototype, // true
+            Reflect.getPrototypeOf(proxy) === Person.prototype, // true
+            proxy instanceof Person, // true
+        ]);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // isExtensible()
+    {
+        // isExtensible方法拦截Object.isExtensible操作。
+        // 注意，该方法只能返回布尔值，否则返回值会被自动转为布尔值。
+        // 这个方法有一个强限制，它的返回值必须与目标对象的isExtensible属性保持一致，否则就会抛出错误。
+        let target = {};
+        let proxy = new Proxy(target, {
+            isExtensible: function(target) {
+                console.log("我就是拦截时多的操作,其实结果是被强制了,但是过程可以做多一点东西");
+                return Object.isExtensible(target); // 由于它的返回值必须与目标对象的isExtensible属性保持一致 所以只能这样
+            }
+        });
+
+        show([
+            Object.isExtensible(proxy), // true
+            Object.isExtensible(target), // true
+        ]);
+
+        {
+            let proxy = new Proxy(target, {
+                isExtensible: function(target) {
+                    return false
+                }
+            });
+            // Object.isExtensible(proxy); // 报错 'isExtensible' on proxy: trap result does not reflect extensibility of proxy target (which is 'true')
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ownKeys()
+    {
+        // ownKeys方法用来拦截对象自身属性的读取操作。具体来说，拦截以下操作。
+
+        // Object.getOwnPropertyNames()
+        // Object.getOwnPropertySymbols()
+        // Object.keys()
+
+
+        let target = {
+            a: 1,
+            b: 2,
+            c: 3
+        };
+
+        let handler = {
+            ownKeys(target) {
+                // return Reflect.ownKeys(target); // 正常
+                return ['name', 'a'];
+            }
+        };
+
+        let proxy = new Proxy(target, handler);
+        show([
+            Object.keys(proxy), //只有"a" , 因为"name"不是target的属性
+            // 注意，使用Object.keys方法时，有三类属性会被ownKeys方法自动过滤，不会返回。
+            //      目标对象上不存在的属性
+            //      属性名为 Symbol 值
+            //      不可遍历（enumerable）的属性
+            Object.getOwnPropertyNames(proxy), // ["name", "a"]
+        ]);
+
+
+        {
+            // ownKeys方法虽然返回一个数组，但是每一个数组成员都不是字符串或 Symbol 值，因此就报错了。
+            let proxy = new Proxy(target, {
+                ownKeys(tar) {
+                    return [
+                        ["a"], "b"
+                    ];
+                }
+            });
+
+            // Object.getOwnPropertyNames(proxy); // 报错 [object Array] is not a valid property name
+        } {
+            // 如果目标对象自身包含不可配置的属性，则该属性必须被ownKeys方法返回，否则报错
+            Object.defineProperty(target, 'd', {
+                configurable: false, // 不可配置
+                enumerable: true,
+                value: 10
+            });
+            let proxy = new Proxy(target, {
+                ownKeys(tar) {
+                    return ["a"];
+                }
+            });
+            // Object.getOwnPropertyNames(proxy); // 报错 'ownKeys' on proxy: trap result did not include 'd'
+        } {
+            // 另外，如果目标对象是不可扩展的（non-extensition），这时ownKeys方法返回的数组之中，必须包含原对象的所有属性，且不能包含多余的属性，否则报错。
+            Object.preventExtensions(target);
+            let proxy = new Proxy(target, {
+                ownKeys: function(target) {
+                    return ['a', 'b', "d"];
+                }
+            });
+            // Object.getOwnPropertyNames(proxy); // 报错 'ownKeys' on proxy: trap result did not include 'c'
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // preventExtensions()
+    {
+        // preventExtensions方法拦截Object.preventExtensions()。该方法必须返回一个布尔值，否则会被自动转为布尔值。
+
+        // 这个方法有一个限制，只有目标对象不可扩展时（即Object.isExtensible(proxy)为false），proxy.preventExtensions才能返回true，否则会报错。
+
+
+        // 为了防止出现这个问题，通常要在proxy.preventExtensions方法里面，调用一次Object.preventExtensions。
+        let proxy = new Proxy({}, {
+            preventExtensions: function(target) {
+                console.log('我是拦截时多出的操作');
+                Object.preventExtensions(target);
+                return true;
+            }
+        });
+
+        show([
+            Object.preventExtensions(proxy),
+            // 我是拦截时多出的操作
+            // Proxy {}
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+    // setPrototypeOf()
+    {
+        // setPrototypeOf方法主要用来拦截Object.setPrototypeOf方法。
+        let handler = {
+            setPrototypeOf(target, proto) {
+                throw new Error('Changing the prototype is forbidden');
+            }
+        };
+        let proto = {};
+        let target = function() {};
+        let proxy = new Proxy(target, handler);
+        // Object.setPrototypeOf(proxy, proto);
+        // Error: Changing the prototype is forbidden
+
+        // 注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（extensible），setPrototypeOf方法不得改变目标对象的原型。
+
+    }
+
+
+
+
+
+
+
+
+    /**
+     * Proxy.revocable()
+     *
+     * Proxy.revocable方法返回一个可取消的 Proxy 实例。
+     */
+    {
+        let target = {};
+        let handler = {};
+
+        let proxy_revoke = Proxy.revocable(target, handler);
+        console.log(proxy_revoke);
+        let {
+            proxy,
+            revoke
+        } = proxy_revoke; // 对象解析赋值
+
+        proxy.foo = 123;
+        proxy.foo // 123
+
+        revoke(); // 取消了proxy对象了
+        // proxy.foo //报错 TypeError: Revoked
+    }
+
+
+
+
+
+
+
+
+
+
+    /**
+     * this 问题
+     *
+     * 虽然 Proxy 可以代理针对目标对象的访问，但它不是目标对象的透明代理，即不做任何拦截的情况下，也无法保证与目标对象的行为一致。主要原因就是在 Proxy 代理的情况下，目标对象内部的this关键字会指向 Proxy 代理。
+     */
+    {
+        const target = {
+            m: function() {
+                return (this === proxy);
+            }
+        };
+        const handler = {};
+        const proxy = new Proxy(target, handler);
+
+        show([
+            target.m(), // false
+            proxy.m() // true
+        ]);
+
+
+
+        {
+            const _name = new WeakMap();
+
+            class Person {
+                constructor(name) {
+                    _name.set(this, name);
+                }
+                get name() {
+                    return _name.get(this);
+                }
+            }
+
+            const jane = new Person('Jane');
+            const proxy = new Proxy(jane, {});
+
+            show([
+                jane.name, // 'Jane'
+                proxy.name // undefined
+            ]);
+            //上面代码中，目标对象jane的name属性，实际保存在外部WeakMap对象_name上面，通过this键区分。由于通过proxy.name访问时，this指向proxy，导致无法取到值，所以返回undefined。
+        }
+
+
+        {
+            // 有些原生对象的内部属性，只有通过正确的this才能拿到，所以 Proxy 也无法代理这些原生对象的属性。
+            const target = new Date();
+            const handler = {};
+            const proxy = new Proxy(target, handler);
+
+            // proxy.getDate();
+            // TypeError: this is not a Date object.
+        } {
+            // 这时，this绑定原始对象，就可以解决这个问题
+            const target = new Date('2015-01-01');
+            const handler = {
+                get(target, prop) {
+                    if (prop === 'getDate') {
+                        return target.getDate.bind(target);
+                    }
+                    return Reflect.get(target, prop);
+                }
+            };
+            const proxy = new Proxy(target, handler);
+
+
+            show([
+                proxy.getDate() // 1
+            ]);
+        }
+    }
+
+
+
 
     // end
     </script>
