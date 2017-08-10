@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Promise---Promise.all&Promise.race</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /**
+     * Promise.all()
+     *
+     * 静态方法 Promise.all 方法用于将多个 Promise 实例，包装成一个新的 Promise 实例。
+     *
+
+        Promise.all(iterable);
+
+        iterable
+            一个可迭代对象，例如 Array。参见 iterable.
+
+        返回值
+            一个 Promise , 如果可迭代对象中的所有 Promise 都是 resolve 则返回一个 resolve Promise;或者在任一 Promise 被 reject 后就返回一个 reject Promise。
+     */
+
+    {
+        let p1 = Promise.resolve(3);
+        let p2 = 1337;
+        let p3 = new Promise((resolve, reject) => {
+            setTimeout(resolve, 100, "foo");
+        });
+
+        Promise.all([p1, p2, p3]).then(values => {
+            console.log(values); // [3, 1337, "foo"]
+        });
+    }
+
+
+
+    {
+        let p1 = Promise.reject(3);
+        let p2 = 1337;
+        let p3 = new Promise((resolve, reject) => {
+            setTimeout(resolve, 100, "foo");
+        });
+
+        Promise.all([p1, p2, p3]).then(values => {
+            console.log(values);
+        }, error => {
+            console.log(error); // 3 如果有reject , 立即返回那个reject , 不在管可迭代对象后面的Promise对象了
+        });
+    }
+
+
+
+    /**
+     * Promise.race(iterable)
+     *
+     * Promise.race()与Promise.all()类似 不过只要惹有一个实例率先改变状态，p的状态就跟着改变。那个率先改变的 Promise 实例的返回值，就传递给p的回调函数。
+     */
+    {
+        let p1 = new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                if (Math.random() > 0.5) {
+                    resolve("p1成功");
+                } else {
+                    reject("p1失败");
+                }
+            }, 2000);
+        });
+        let p2 = new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                if (Math.random() > 0.5) {
+                    resolve("p2成功");
+                } else {
+                    reject("p2失败");
+                }
+            }, 1000);
+
+        });
+        let p3 = new Promise(function(resolve, reject) {
+            setTimeout(function() {
+                if (Math.random() > 0.5) {
+                    resolve("p3成功");
+                } else {
+                    reject("p3失败");
+                }
+            }, 3000);
+        });
+
+
+        Promise.race([p1, p2, p3])
+            .then(values => {
+                console.log(values);
+            }, error => {
+                console.log(error);
+            });
+
+        // p2成功
+        // 或者
+        // p2失败
+
+        // 因为p2总是最快改变状态的 , 一旦有其中一个改变状态 , Promise.race()就跟着改变
+    }
+
+
+    // end
+    </script>
+</body>
+
+</html>

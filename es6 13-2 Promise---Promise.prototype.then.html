@@ -16,15 +16,16 @@
         console.log("");
     }
 
+    // 当Promise对象状态为fulfilled时，调用 then 的 onfulfilled 方法，当Promise对象状态为rejected时，调用 then 的 onrejected 方法
+
     /**
      * Promise.prototype.then()
      */
 
-
     /**
      * then() 方法返回一个  Promise。它最多需要有两个参数：Promise的成功和失败情况的回调函数。
      *
-     * 注意事项：如果省略这两个参数，或者提供非函数，那么将创建一个没有其他处理程序的新Promise，只是采用 Promise 的最终状态，then 被调用。如果省略第一个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的完成状态，then被调用（如果它变为完成）。如果省略第二个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的拒绝状态，then被调用（如果它被拒绝）。
+     * 注意事项：如果省略这两个参数，或者提供非函数，那么将创建一个没有其他处理程序的新Promise，只是采用 Promise 的最终状态，then 被调用。如果省略第一个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的完成状态(包括值)，then被调用（如果它变为完成）。如果省略第二个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的拒绝状态(包括值)，then被调用（如果它被拒绝）。
 
         p.then(onFulfilled, onRejected);
 
@@ -53,7 +54,7 @@
 
     // 就是说返回的 Promise对象的状态 不是由这个then的 "onFulfilled回调函数" 还是 "onRejected回调函数" 调用 ; 而是 "onFulfilled回调函数或者onRejected回调函数" 调用时是否发生错误 是否直接返回 "拒绝的 Promise"
 
-    function ran(n,flag = true) {
+    function ran(n, flag = true) {
         return new Promise(function(resolve, reject) {
             if (flag) {
                 resolve(n + "次resolve");
@@ -63,7 +64,7 @@
         });
     }
 
-    ran(1,false).then( // 第一个 then
+    ran(1, false).then( // 第一个 then
         success => {
             console.log("第" + success + "成功");
             return ran(2);
@@ -89,6 +90,74 @@
 
     // 第1次reject失败 第一个then是执行onRejected回调函数
     // 第2次resolve成功 第一个then虽然是执行onRejected回调函数 但是 函数体里面返回的 Promise是resolve状态 , 所以在第二个then里面是执行的是 onFulfilled回调函数
+
+
+    /**
+     * Promise.prototype.catch
+     *
+     * Promise.prototype.catch方法是.then(null, rejection)的别名，用于指定发生错误时的回调函数。
+     *
+     */
+
+    {
+        new Promise(function(rs, rj) {
+            rj("错误");
+        }).catch((err) => console.log('rejected', err)); // rejected 错误
+
+        // 等同于
+        new Promise(function(rs, rj) {
+            rj("错误");
+        }).then(null, (err) => console.log("rejected:", err)); // rejected: 错误
+    }
+
+
+
+    /*如果省略这两个参数，或者提供非函数*/
+    {
+        let p1 = Promise.resolve('foo');
+        let p2 = p1
+            .then(console.log("haha1"))
+            .then(console.log("haha2"))
+            .then(console.log("haha3"))
+            .then(console.log("haha4"))
+            .then(console.log("haha5"));
+        p2.then(value => {
+            console.log("成功", value, p1, p2, p1 == p2);
+        }, error => {
+            console.log("错误", error, p1, p2, p1 == p2);
+        });
+    } {
+        let p1 = Promise.reject('foo');
+        let p2 = p1
+            .then(value => {
+                console.log(value, p1, p2, p1 == p2)
+            })
+            .then(console.log("haha2"))
+            .then(console.log("haha3"))
+            .then(console.log("haha4"))
+            .then(console.log("haha5"));
+        p2.then(value => {
+            console.log("成功", value, p1, p2, p1 == p2);
+        }, error => {
+            console.log("错误", error, p1, p2, p1 == p2);
+        });
+    }
+    // 如果一直没有onFulfilled 或者 onRejected处理 ; 状态和传的值会一直链式传下去 直到被then里面的onFulfilled 或者 onRejected
+
+    // catch同理
+    {
+        let p1 = Promise.reject('foo')
+            .then(value => {
+                console.log(value, p1, p2, p1 == p2)
+            })
+            .then(console.log("haha2"))
+            .then(console.log("haha3"))
+            .then(console.log("haha4"))
+            .then(console.log("haha5"))
+            .catch(error => {
+                console.log("错误", error);
+            });
+    }
     </script>
 </body>
 
