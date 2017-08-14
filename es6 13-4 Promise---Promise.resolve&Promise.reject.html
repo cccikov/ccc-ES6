@@ -30,59 +30,60 @@
         new Promise((resolve, reject) => resolve('foo'));
     }
 
+
+
+
     /*Promise.resolve方法的参数分成四种情况。*/
 
 
     /*（1）参数是一个Promise实例*/
+    // 如果参数是Promise实例，那么Promise.resolve将不做任何修改、原封不动地返回这个实例。
     {
+        // 同理在构造函数中调用resolve()传入的参数也是一样
         let p1 = new Promise(function(resolve, reject) {
-            // setTimeout(() => reject(new Error('fail')), 3000)
-            setTimeout(() => resolve("p1"), 1000)
+            setTimeout(() => reject(new Error('fail')), 3000)
+        });
+        let p2 = new Promise(function(resolve, reject) {
+            setTimeout(() => resolve(p1), 1000)
+        });
+        p2
+            .then(result => {
+                console.log(result);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        // Error: fail
 
+        // p2 结果相当于返回一个 Promise.resolve(p1) => 等于直接返回p1 => p1还处于pending状态 => 返回 Promise.reject(new Error('fail'))
+
+        // Promise对象 都是会返回一个状态以及状态对应的值(参数) , 如果那个状态对应的值(参数)是一个 新Promise对象 的时候 , Promise对象就直接返回 那个新的Promise对象
+    }
+
+    /*（2）参数是一个thenable对象*/
+    {
+        let thenable = {
+            then: function(resolve, reject) {
+                setTimeout(function() {
+                    if (Math.random() > 0.5) {
+                        resolve(200);
+                    } else {
+                        reject(400);
+                    }
+                }, 500);
+            }
+        };
+        let p1 = Promise.resolve(thenable);
+        p1.then(function(value) {
+            console.log(value);
+        }).catch((error) => {
+            console.log(error);
         });
 
-        // let p2 = new Promise(function(resolve, reject) {
-        //     setTimeout(() => resolve(p1), 1000)
-        // });
+        // 200
+        // 或者
+        // 400
 
-        p1
-            .then(null, error => console.log(error))
-            .then()
-            .then()
-            .then()
-            .then()
-            .then(result => {
-                console.log(result, 3);
-                console.log(p1 == p1.then());
-                console.log(p1);
-                console.log(p1.then());
-            })
-            .then(result => console.log(result, 1), error => console.log(error))
-            // .catch(error => console.log(error))
-            // Error: fail
-
-        // p1.then(function(value) {
-        //   console.log(value); // "成功!"
-        //   throw 'oh, no!';
-        // }).catch(function(e) {
-        //   console.log(e); // "oh, no!"
-        // }).then(function(){
-        //   console.log('after a catch the chain is restored');
-        // }, function () {
-        //   console.log('Not fired due to the catch');
-        // });
-
-        // // 以下行为与上述相同
-        // p1.then(function(value) {
-        //   console.log(value); // "成功!"
-        //   return Promise.reject('oh, no!');
-        // }).catch(function(e) {
-        //   console.log(e); // "oh, no!"
-        // }).then(function(){
-        //   console.log('after a catch the chain is restored');
-        // }, function () {
-        //   console.log('Not fired due to the catch');
-        // });
     }
 
 
