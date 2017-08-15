@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Iterator 和 for...of 循环---Iterator接口与Generator函数</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    /*Symbol.iterator方法的最简单实现，还是使用下一章要介绍的Generator函数。*/
+    {
+        let myIterable = {};
+
+        myIterable[Symbol.iterator] = function*() {
+            yield 1;
+            yield 2;
+            yield 3;
+        };
+        [...myIterable] // [1, 2, 3]
+
+
+
+
+
+        // 或者采用下面的简洁写法
+        let obj = { * [Symbol.iterator]() {
+                yield 'hello';
+                yield 'world';
+            }
+        };
+
+        for (let x of obj) {
+            console.log(x);
+        }
+        // hello
+        // world
+    }
+
+    // end
+    </script>
+</body>
+
+</html>

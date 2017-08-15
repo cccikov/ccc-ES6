@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Iterator 和 for...of 循环---实现Iterator 接口</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+    {
+        // 部署类遍历器写法
+        class RangeIterator {
+            constructor(start, stop) {
+                this.value = start;
+                this.stop = stop;
+            }
+
+            [Symbol.iterator]() {
+                return this;
+            }
+
+            next() {
+                var value = this.value;
+                if (value < this.stop) {
+                    this.value++;
+                    return {
+                        done: false,
+                        value: value
+                    };
+                }
+                return {
+                    done: true,
+                    value: undefined
+                };
+            }
+        }
+
+        let newTypeData = new RangeIterator(0, 3);
+        for (var value of newTypeData) {
+            console.log(value); // 0, 1, 2
+        }
+    }
+
+
+
+    {
+        function Obj(value) {
+            this.value = value;
+            this.next = null;
+        }
+        Obj.prototype[Symbol.iterator] = function() {
+            var iterator = {
+                next: next
+            };
+            var current = this;
+
+            function next() {
+                console.log(current);
+                if (current) {
+                    var value = current.value;
+                    current = current.next;
+                    return {
+                        done: false,
+                        value: value
+                    };
+                } else {
+                    return {
+                        done: true
+                    };
+                }
+            }
+            return iterator;
+        }
+
+        var one = new Obj(1);
+        var two = new Obj(2);
+        var three = new Obj(3);
+
+        one.next = two;
+        two.next = three;
+
+        for (var i of one) {
+            console.log(i); // 1, 2, 3
+        }
+
+        let iter = one[Symbol.iterator]();
+        show([
+            iter.next(), // {done: false, value: 1}
+            iter.next(), // {done: false, value: 2}
+            iter.next(), // {done: false, value: 3}
+            iter.next(), // {done: true}
+        ]);
+    }
+
+    {
+        // 对象添加 Iterator 接口的例子。
+        let obj = {
+            data: ['hello', 'world'],
+            [Symbol.iterator]() {
+                const self = this;
+                let index = 0;
+                return {
+                    next() {
+                        if (index < self.data.length) {
+                            return {
+                                value: self.data[index++],
+                                done: false
+                            };
+                        } else {
+                            return {
+                                value: undefined,
+                                done: true
+                            };
+                        }
+                    }
+                };
+            }
+        };
+    }
+
+    {
+        // 对于类似数组的对象（存在数值键名和length属性），部署 Iterator 接口，有一个简便方法，就是Symbol.iterator方法直接引用数组的 Iterator 接口。
+
+        let arrLike = {
+            0: "haha",
+            1: "meme",
+            2: "jj",
+            3: "mumu",
+            length: 4,
+            [Symbol.iterator]: Array.prototype[Symbol.iterator]
+        }
+
+        for (let i of arrLike) {
+            console.log(i);
+        }
+
+
+
+        class ArrayLike {
+            constructor() {
+                Object.assign(this, {
+                    0: "haha",
+                    1: "meme",
+                    2: "jj",
+                    3: "mumu",
+                    length: 4,
+                });
+            }
+        }
+        ArrayLike.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
+
+        let arrLike2 = new ArrayLike();
+        for (let i of arrLike2) {
+            console.log(i);
+        }
+
+
+    }
+
+
+    // end
+    </script>
+</body>
+
+</html>
