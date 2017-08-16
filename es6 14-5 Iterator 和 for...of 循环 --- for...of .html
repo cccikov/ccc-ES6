@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Iterator 和 for...of 循环 --- for...of</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+
+    /**
+     * for...of
+     *
+     * 一个数据结构只要部署了Symbol.iterator属性，就被视为具有iterator接口，就可以用for...of循环遍历它的成员。也就是说，for...of循环内部调用的是数据结构的Symbol.iterator方法。
+     * for...of循环可以使用的范围包括数组、Set 和 Map 结构、某些类似数组的对象（比如arguments对象、DOM NodeList 对象）、后文的 Generator 对象，以及字符串。
+     */
+
+
+
+    /*数组*/
+    {
+        // JavaScript 原有的for...in循环，只能获得对象的键名，不能直接获取键值。ES6 提供for...of循环，允许遍历获得键值。
+        let arr = ["a", "b", "c"];
+        arr.foo = 'hello';
+
+        for (let i in arr) {
+            console.log(i); // "a", "b", "c", "foo"
+        }
+
+        for (let i of arr) {
+            console.log(i); //  "a", "b", "c"
+        } // for...of循环不会返回数组arr的foo属性。
+
+        // for...of循环调用遍历器接口，数组的遍历器接口只返回具有数字索引的属性。这一点跟for...in循环也不一样。
+
+
+
+
+
+
+
+        /*如果要通过for...of循环，获取数组的索引，可以借助数组实例的entries方法和keys方法，参见《数组的扩展》章节。*/
+        for (var [key, val] of arr.entries()) {
+            console.log(key, val);
+        }
+        // 0 "a"
+        // 1 "b"
+        // 2 "c"
+
+        for (var key of arr.keys()) {
+            console.log(key);
+        }
+        // 0
+        // 1
+        // 2
+
+
+        /*for (var val of arr.values()) {
+            console.log(val);
+        } // chrome Firefox 未实现 数组的values*/
+
+    }
+
+    // 其他具有 Iterator接口的 数据类型一样可以通过以上方法遍历
+    // Set
+    // Map
+    // 字符串
+    // DOM NodeList对象
+    // arguments对象
+
+    /*Set和Map 都部署了一下三个方法 , 调用后返回遍历器*/
+    /**
+     * entries() 返回一个遍历器对象，用来遍历[键名, 键值]组成的数组。对于数组，键名就是索引值；对于Set，键名与键值相同。Map结构的iterator接口，默认就是调用entries方法。
+     * keys() 返回一个遍历器对象，用来遍历所有的键名。
+     * values() 返回一个遍历器对象，用来遍历所有的键值。
+     */
+    {
+        let map = new Map().set('a', 1).set('b', 2);
+        for (let key of map.keys()) {
+            console.log(key);
+        }
+        // a
+        // b
+        for (let val of map.values()) {
+            console.log(val);
+        }
+        // 1
+        // 2
+        for (let key_value of map.entries()) {
+            console.log(key_value);
+        }
+        // ["a", 1]
+        // ["b", 2]
+    } {
+        // 字符串
+        let str = "hello";
+        for (let s of str) {
+            console.log(s); // h e l l o
+        }
+
+        // DOM NodeList对象
+        let paras = document.querySelectorAll("p");
+        for (let p of paras) {
+            p.classList.add("test");
+        }
+
+        // arguments对象
+        function printArgs() {
+            for (let x of arguments) {
+                console.log(x);
+            }
+        }
+        printArgs('a', 'b');
+        // 'a'
+        // 'b'
+    }
+
+
+    {
+        function fn() {
+            let arr = ["a", "b", "c"];
+            let set = new Set(["Gecko", "Trident", "Webkit", "Webkit"]);
+            let map = new Map().set('a', 1).set('b', 2);
+            let str = "hello";
+            let node = document.querySelectorAll("p");
+            let arg = arguments;
+
+            show([
+                arr.keys(),
+                // arr.values(),
+                arr.entries(),
+
+                set.keys(),
+                set.values(),
+                set.entries(),
+
+                map.keys(),
+                map.values(),
+                map.entries(),
+
+                // str.keys(),
+                // str.values(),
+                // str.entries(),
+
+                node.keys(),
+                node.values(),
+                node.entries(),
+
+                // arg.keys(),
+                // arg.values(),
+                // arg.entries(),
+            ]);
+
+            // 经研究 Set、Map实例对象 DOM_NodeList对象 都具备 keys values entries 方法
+            // Array实例对象 只具备 keys entries
+            // String实例对象 arguments对象 完全不具备这三个方法
+
+        }
+        fn("a", "b", "c")
+    }
+
+
+
+
+
+    /*对象*/
+    {
+        // 对于普通的对象，for...of结构不能直接使用，会报错，必须部署了iterator接口后才能使用。但是，这样情况下，for...in循环依然可以用来遍历键名。
+        var es6 = {
+            edition: 6,
+            committee: "TC39",
+            standard: "ECMA-262"
+        };
+
+        for (let e in es6) {
+            console.log(e);
+        }
+        // edition
+        // committee
+        // standard
+
+        // for (let e of es6) {
+        //     console.log(e);
+        // }
+        // 报错 TypeError: es6 is not iterable
+
+
+
+
+
+        // 一种解决方法是，使用Object.keys方法将对象的键名生成一个数组，然后遍历这个数组。
+        for (var key of Object.keys(es6)) {
+            console.log(key + ": " + es6[key]);
+        }
+        // 或者
+        for (var value of Object.values(es6)) {
+            console.log(value);
+        }
+        for (var key_value of Object.entries(es6)) {
+            console.log(key_value);
+        }
+        // 注意以上几个是Object构造函数的静态方法
+
+
+
+
+        // 另一个方法是使用Generator函数将对象重新包装一下。
+        function* entries(obj) {
+            for (let key of Object.keys(obj)) {
+                yield [key, obj[key]];
+            }
+        }
+        for (let [key, value] of entries(es6)) {
+            console.log(key, "->", value);
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * 与其他遍历语法的比较
+     */
+    {
+
+        // 以数组为例，JavaScript提供多种遍历语法。最原始的写法就是for循环。
+        for (var index = 0; index < myArray.length; index++) {
+            console.log(myArray[index]);
+        }
+
+
+        // 这种写法比较麻烦，因此数组提供内置的forEach方法。
+        myArray.forEach(function(value) {
+            console.log(value);
+        });
+        // 这种写法的问题在于，无法中途跳出forEach循环，break命令或return命令都不能奏效。
+
+        // for...in循环可以遍历数组的键名。
+        for (var index in myArray) {
+            console.log(myArray[index]);
+        }
+
+        /**
+         * for...in循环有几个缺点。
+         *     数组的键名是数字，但是for...in循环是以字符串作为键名“0”、“1”、“2”等等。
+         *     for...in循环不仅遍历数字键名，还会遍历手动添加的其他键，甚至包括原型链上的键。
+         *     某些情况下，for...in循环会以任意顺序遍历键名。
+         */
+        // 总之，for...in循环主要是为遍历对象而设计的， 不适用于遍历数组。
+
+
+
+
+        // for...of循环相比上面几种做法， 有一些显著的优点。
+        for (let value of myArray) {
+            console.log(value);
+        }
+        /**
+         * 有着同for...in一样的简洁语法， 但是没有for...in那些缺点。
+         * 不同用于forEach方法， 它可以与break、 continue和return配合使用。
+         * 提供了遍历所有数据结构的统一操作接口。
+         */
+    }
+
+    // end
+    </script>
+</body>
+
+</html>
