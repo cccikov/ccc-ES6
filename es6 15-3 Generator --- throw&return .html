@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Generator --- throw&return</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+    //////////////////////////////////
+    // Generator.prototype.throw() //
+    //////////////////////////////////
+
+    /*Generator 函数返回的遍历器对象，都有一个throw方法，可以在函数体外抛出错误，然后在 Generator 函数体内捕获。*/
+    {
+        let g = function*() {
+            yield;
+            try {
+                yield;
+            } catch (e) {
+                console.log('内部捕获', e);
+            }
+        };
+
+        let i = g();
+        i.next();
+        i.next();
+
+        try {
+            i.throw(new Error("错误A"));
+            i.throw(new Error("错误B"));
+        } catch (e) {
+            console.log('外部捕获', e);
+        }
+
+        // 内部捕获 Error: 错误A
+        // 外部捕获 Error: 错误B
+
+
+        try {
+            throw new Error('a');
+            throw new Error('b');
+        } catch (e) {
+            console.log('外部捕获', e);
+        }
+        // 外部捕获 Error: a
+
+    }
+
+
+
+    //////////////////////////////////
+    // Generator.prototype.return() //
+    //////////////////////////////////
+
+    // end
+    </script>
+</body>
+
+</html>

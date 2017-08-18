@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Generator --- 介绍</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+
+    /////////////////////
+    // Generator 函数的语法 //
+    /////////////////////
+    /**
+     * Generator 函数的语法
+     * Generator 函数有多种理解角度。从语法上，首先可以把它理解成，Generator 函数是一个状态机，封装了多个内部状态。
+     * 执行 Generator 函数会返回一个遍历器对象，也就是说，Generator 函数除了状态机，还是一个遍历器对象生成函数。返回的遍历器对象，可以依次遍历 Generator 函数内部的每一个状态。
+     * 形式上，Generator 函数是一个普通函数，但是有两个特征。一是，function关键字与函数名之间有一个星号；二是，函数体内部使用yield表达式，定义不同的内部状态（yield在英语里的意思就是“产出”）。
+     */
+    {
+        function* helloWorldGenerator() {
+            yield 'hello';
+            yield 'world';
+            return 'ending';
+        }
+        let hw = helloWorldGenerator();
+        console.log(hw);
+
+        /**
+         * 上面代码定义了一个 Generator 函数helloWorldGenerator，它内部有两个yield表达式（hello和world），即该函数有三个状态：hello，world 和 return 语句（结束执行）
+         */
+        console.log(hw.next()); // {value: "hello", done: false}
+        //第一次调用，Generator 函数开始执行，直到遇到第一个yield表达式为止。next方法返回一个对象，它的value属性就是当前yield表达式的值hello，done属性的值false，表示遍历还没有结束。
+        console.log(hw.next()); // {value: "world", done: false}
+        //第二次调用，Generator 函数从上次yield表达式停下的地方，一直执行到下一个yield表达式。next方法返回的对象的value属性就是当前yield表达式的值world，done属性的值false，表示遍历还没有结束。
+        console.log(hw.next()); // {value: "ending", done: true}
+        //第三次调用，Generator 函数从上次yield表达式停下的地方，一直执行到return语句（如果没有return语句，就执行到函数结束）。next方法返回的对象的value属性，就是紧跟在return语句后面的表达式的值（如果没有return语句，则value属性的值为undefined），done属性的值true，表示遍历已经结束。
+        console.log(hw.next()); // {value: undefined, done: true}
+        //第四次调用，此时 Generator 函数已经运行完毕，next方法返回对象的value属性为undefined，done属性为true。以后再调用next方法，返回的都是这个值。
+    }
+    // 总结一下，调用 Generator 函数，返回一个遍历器对象，代表 Generator 函数的内部指针。以后，每次调用遍历器对象的next方法，就会返回一个有着value和done两个属性的对象。value属性表示当前的内部状态的值，是yield表达式后面那个表达式的值；done属性是一个布尔值，表示是否遍历结束。
+
+
+
+    /* ES6 没有规定，function关键字与函数名之间的星号，写在哪个位置。这导致下面的写法都能通过。*/
+    {
+        function* foo1(x, y) {
+            // some code
+        }
+
+        function* foo2(x, y) {
+            // some code
+        }
+
+        function* foo3(x, y) {
+            // some code
+        }
+
+        function* foo4(x, y) {
+            // some code
+        }
+
+        let foo5 = function*() {
+            // some code
+        }
+    }
+
+
+
+
+
+
+    ///////////////
+    // yield 表达式 //
+    ///////////////
+    /**
+     * 由于 Generator 函数返回的遍历器对象，只有调用next方法才会遍历下一个内部状态，所以其实提供了一种可以暂停执行的函数。yield表达式就是暂停标志。
+     *
+     * 遍历器对象的next方法的运行逻辑如下。
+     * （1）遇到yield表达式，就暂停执行后面的操作，并将紧跟在yield后面的那个表达式的值，作为返回的对象的value属性值。
+     * （2）下一次调用next方法时，再继续往下执行，直到遇到下一个yield表达式。
+     * （3）如果没有再遇到新的yield表达式，就一直运行到函数结束，直到return语句为止，并将return语句后面的表达式的值，作为返回的对象的value属性值。
+     * （4）如果该函数没有return语句，则返回的对象的value属性值为undefined。
+     *  需要注意的是，yield表达式后面的表达式，只有当调用next方法、内部指针指向该语句时才会执行，因此等于为 JavaScript 提供了手动的“惰性求值”（Lazy Evaluation）的语法功能。
+     */
+
+
+    {
+        function* fn() {
+            var result = null;
+
+            console.log("\n\n写在第1个yield之前", result);
+            result = yield console.log("第1个yield 表达式后面");
+            console.log("写在第1个yield后", result);
+
+            console.log("\n\n写在第2个yield之前", result);
+            result = yield console.log("第2个yield 表达式后面");
+            console.log("写在第2个yield后", result);
+
+            console.log("\n\n写在第3个yield之前", result);
+            result = yield console.log("第3个yield 表达式后面");
+            console.log("写在第3个yield后", result);
+        }
+
+        let iter = fn();
+        show([
+            iter.next(1),
+            // 写在第1个yield之前 null
+            // 第1个yield 表达式后面
+
+            // 第一个next() 就是从函数的开头知道 第一个yield为止 , 由于赋值语句优先级比较低 , 所以先是返回 yield表达式后面的内容
+
+            iter.next(2),
+
+            // 写在第1个yield后 2
+            // 写在第2个yield之前 2
+            // 第2个yield 表达式后面
+
+            // 第二next() 就是从第一个yield开始 , 由于上一个yield还没有执行赋值操作 , 所以第一步就是赋值给result ; yield表达式本身没有返回值，或者说总是返回undefined。
+            // 但是这里的next带有参数了 , 所以yield表达式返回值就是就是next调用的参数值
+            // 但会发现 , 这个yield表达式返回值是上一轮next执行的yield , 由于赋值优先级低 , 所以当前next() 执行的操作中是不可能会得到这轮yield表达式返回值 , 所以
+            // next方法参数就会被当作上一个yield表达式的返回值。
+
+            iter.next(3),
+            iter.next(4),
+        ]);
+    }
+
+
+
+    /////////////////
+    //  next 方法的参数 //
+    /////////////////
+    /*yield表达式本身没有返回值，或者说总是返回undefined。next方法可以带一个参数，该参数就会被当作上一个yield表达式的返回值。*/
+    {
+        function* foo(x) {
+            var y = 2 * (yield(x + 1));
+            var z = yield(y / 3);
+            return (x + y + z);
+        }
+        var a = foo(5);
+        show([
+            a.next(), // { value:6, done:false } x = 5
+            a.next(12), // { value:8, done:false } y = 2 * 12 = 24
+            a.next(13), // { value:42, done:true } z = 13
+        ]);
+    }
+
+
+    // Generator 函数可以不用yield表达式，这时就变成了一个单纯的暂缓执行函数。
+    {
+        function* f() {
+            console.log('执行了！')
+        }
+
+        var generator = f();
+
+        setTimeout(function() {
+            generator.next()
+        }, 2000);
+    }
+    // yield表达式如果用在另一个表达式之中，必须放在圆括号里面
+    {
+        function* demo() {
+            // console.log('Hello' + yield); // SyntaxError
+            // console.log('Hello' + yield 123); // SyntaxError
+
+            console.log('Hello ' + (yield)); // OK
+            console.log('Hello ' + (yield 123) + " world"); // OK
+        }
+        let dm = demo();
+        dm.next(1);
+        dm.next(2); // Hello 2
+        dm.next(3); // Hello 3 world
+    }
+    // yield表达式用作函数参数或放在赋值表达式的右边，可以不加括号。
+    {
+        function foo(a, b) {
+            console.log(a + " " + b);
+        }
+
+        function* fn() {
+            foo(yield 'a', yield 'b'); // OK
+            let input = yield; // OK
+        }
+        let f = fn();
+        console.log(f.next());
+        console.log(f.next());
+        console.log(f.next());
+    }
+
+
+
+
+    //////////////////////
+    // 与 Iterator 接口的关系 //
+    //////////////////////
+
+    /*任意一个对象的Symbol.iterator方法，等于该对象的遍历器生成函数，调用该函数会返回该对象的一个遍历器对象。*/
+    /*由于 Generator 函数就是遍历器生成函数，因此可以把 Generator 赋值给对象的Symbol.iterator属性，从而使得该对象具有 Iterator 接口。*/
+    {
+        let myIterable = {};
+        myIterable[Symbol.iterator] = function*() {
+            yield 1;
+            yield 2;
+            yield 3;
+        };
+        [...myIterable] // [1, 2, 3]
+
+
+
+
+        function* gen() {
+            // some code
+        }
+        let iter = gen();
+        show([
+            iter,
+            iter[Symbol.iterator](),
+            iter[Symbol.iterator]() === iter // true
+        ]);
+
+    }
+
+    //end
+    </script>
+</body>
+
+</html>
