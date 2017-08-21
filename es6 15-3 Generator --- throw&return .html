@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Generator --- throw&return</title>
 </head>
 
@@ -42,9 +42,10 @@
         } catch (e) {
             console.log('外部捕获', e);
         }
-
         // 内部捕获 Error: 错误A
         // 外部捕获 Error: 错误B
+        // i第二次抛出错误，由于 Generator 函数内部的catch语句已经执行过了，不会再捕捉到这个错误了，所以这个错误就被抛出了 Generator 函数体，被函数体外的catch语句捕获。
+
 
 
         try {
@@ -54,7 +55,26 @@
             console.log('外部捕获', e);
         }
         // 外部捕获 Error: a
+        // 由于不是使用 Generator 实例的throw方法所以都是外部;第二次抛出错误由于catch语句已经执行了,所以不会再捕捉
+    }
 
+
+    /*Generator 函数体外抛出的错误，可以在函数体内捕获；反过来，Generator 函数体内抛出的错误，也可以被函数体外的catch捕获。*/
+    {
+        function* foo() {
+            var x = yield 3;
+            var y = x.toUpperCase();
+            yield y;
+        }
+
+        var it = foo();
+        it.next(); // { value:3, done:false }
+
+        try {
+            it.next(42);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
 
