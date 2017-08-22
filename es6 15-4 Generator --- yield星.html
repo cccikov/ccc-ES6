@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Generator --- yield*</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+    {
+        function* foo() {
+            yield 'a';
+            yield 'b';
+        }
+
+        function* bar() {
+            yield 'x';
+            foo();
+            yield 'y';
+        }
+        for (let v of bar()) {
+            console.log(v);
+        }
+        // "x"
+        // "y"
+    }
+
+
+    ////////////
+    // yield* //
+    ////////////
+
+    /*yield* 表达式遍历操作数，并yield 它返回的每个值。*/
+    /*yield* 表达式本身的值是当遍历器关闭时返回的值(即，当done时为true)*/
+
+    {
+        function* foo() {
+            yield 'a';
+            yield 'b';
+        }
+
+        function* bar() {
+            yield 'x';
+            yield * foo();
+            yield 'y';
+        }
+
+        // 等同于
+        function* bar2() {
+            yield 'x';
+            yield 'a';
+            yield 'b';
+            yield 'y';
+        }
+
+        // 等同于
+        function* bar3() {
+            yield 'x';
+            for (let v of foo()) {
+                yield v;
+            }
+            yield 'y';
+        }
+
+
+        for (let v of bar()) {
+            console.log(v);
+        }
+        // "x"
+        // "a"
+        // "b"
+        // "y"
+    }
+
+    // 对比
+    {
+        function* inner() {
+            yield 'hello!';
+            return 'world';
+        }
+
+        function* outer1() {
+            yield 'open';
+            let val = yield inner();
+            console.log(val); // undefined
+            yield 'close';
+        }
+
+        function* outer2() {
+            yield 'open';
+            let val = yield * inner();
+            console.log(val); // world
+            yield 'close';
+        }
+
+        let gen1 = outer1();
+        let gen2 = outer2();
+
+        show([
+            gen1.next().value, // open
+            gen1.next().value, // 遍历器对象
+            gen1.next().value, // close
+            gen1.next().value, // undefined
+
+            gen2.next().value, // open
+            gen2.next().value, // hello!
+            gen2.next().value, // close
+            gen2.next().value, // undefined
+        ]);
+        // yield* 表达式遍历时只会将遍历器里面 yield返回值遍历出来 , 而遍历器的return值 将成为 yield* 表达式的返回值
+    }
+
+
+    /*实际上，任何数据结构只要有 Iterator 接口，就可以被yield*遍历。*/
+    {
+        function* gen() {
+            yield * [1, 2];
+            yield * "34";
+            yield * arguments;
+        }
+
+        let iter = gen("a", 5, 6);
+        show([
+            iter.next(), // {value: 1, done: false}
+            iter.next(), // {value: 2, done: false}
+            iter.next(), // {value: "3", done: false}
+            iter.next(), // {value: "4", done: false}
+            iter.next(), // {value: "a", done: false}
+            iter.next(), // {value: 5, done: false}
+            iter.next(), // {value: 6, done: false}
+        ]);
+    }
+
+
+    {
+        function* iterTree(tree) {
+            if (Array.isArray(tree)) {
+                console.log("可遍历",tree);
+                for (let i = 0; i < tree.length; i++) {
+                    yield * iterTree(tree[i]);
+                }
+            } else {
+                console.log("不可遍历",tree);
+                yield tree;
+            }
+        }
+
+        const tree = ['a', ['b', 'c'],
+            ['d', 'e']
+        ];
+
+        let iter = iterTree(tree);
+        show([
+            iter.next(),
+            iter.next(),
+            iter.next(),
+            iter.next(),
+            iter.next(),
+            iter.next(),
+        ]);
+    }
+
+    // end
+    </script>
+</body>
+
+</html>
