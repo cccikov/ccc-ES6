@@ -27,6 +27,8 @@
      *
      * 注意事项：如果省略这两个参数，或者提供非函数，那么将创建一个没有其他处理程序的新Promise，只是采用 Promise 的最终状态，then 被调用。如果省略第一个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的完成状态(包括值)，then被调用（如果它变为完成）。如果省略第二个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的拒绝状态(包括值)，then被调用（如果它被拒绝）。
 
+
+
         p.then(onFulfilled, onRejected);
 
         p.then(function(value) {
@@ -53,43 +55,76 @@
      */
 
     // 就是说返回的 Promise对象的状态 不是由这个then的 "onFulfilled回调函数" 还是 "onRejected回调函数" 调用 ; 而是 "onFulfilled回调函数或者onRejected回调函数" 调用时是否发生错误 是否直接返回 "拒绝的 Promise"
+    {
+        // 例子1
+        function ran(n, flag = true) {
+            return new Promise(function(resolve, reject) {
+                if (flag) {
+                    resolve(n + "次resolve");
+                } else {
+                    reject(n + "次reject");
+                }
+            });
+        }
 
-    function ran(n, flag = true) {
-        return new Promise(function(resolve, reject) {
-            if (flag) {
-                resolve(n + "次resolve");
-            } else {
-                reject(n + "次reject");
+        ran(1, false).then( // 第一个 then
+            success => {
+                console.log("第" + success + "成功");
+                return ran(2);
+            },
+            error => {
+                console.log("第" + error + "失败");
+                return ran(2);
             }
-        });
+        ).then( // 第二个 then
+            success => {
+                console.log("第" + success + "成功");
+                return ran(3);
+            },
+            error => {
+                console.log("第" + error + "失败");
+                return ran(3);
+            }
+        ).catch( // 第三个 then
+            error => {
+                console.log("第" + error + "失败");
+            }
+        ); // 在done() 未实现的情况下 链式操作最后最好是catch收尾。
+
+        // 第1次reject失败 第一个then是执行onRejected回调函数
+        // 第2次resolve成功 第一个then虽然是执行onRejected回调函数 但是 函数体里面返回的 Promise是resolve状态 , 所以在第二个then里面是执行的是 onFulfilled回调函数
     }
 
-    ran(1, false).then( // 第一个 then
-        success => {
-            console.log("第" + success + "成功");
-            return ran(2);
-        },
-        error => {
-            console.log("第" + error + "失败");
-            return ran(2);
-        }
-    ).then( // 第二个 then
-        success => {
-            console.log("第" + success + "成功");
-            return ran(3);
-        },
-        error => {
-            console.log("第" + error + "失败");
-            return ran(3);
-        }
-    ).catch( // 第三个 then
-        error => {
-            console.log("第" + error + "失败");
-        }
-    ); // 在done() 未实现的情况下 链式操作最后最好是catch收尾。
+    {
+        // 例子二
+        let p = new Promise(function(resolve, reject) {
+            resolve("成功了");
+        });
+        p.then(function(value){
+            console.log("例子二",value);
+        }).then(function(value){ // 由于上一个then 里面的  onFulfilled  和 onRejected 都没有返回值 , 即返回任何其他值 , 所以then 返回一个 resolved Promise ; 但是value为undefined
+            console.log("例子二",value);
+        }).then(function(value){ // 理同上
+            console.log("例子二",value);
+        });
 
-    // 第1次reject失败 第一个then是执行onRejected回调函数
-    // 第2次resolve成功 第一个then虽然是执行onRejected回调函数 但是 函数体里面返回的 Promise是resolve状态 , 所以在第二个then里面是执行的是 onFulfilled回调函数
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**
@@ -159,7 +194,7 @@
             });
     }
 
-    // 就是说一直没有对应的处理函数处理Promise状态 , 会留给下一个then 或者 catch处理
+    // 就是说一直没有对应的处理函数处理Promise状态 , 会留给下一个then 或者 catch处理 , 状态和值都会一直传下去
     </script>
 </body>
 

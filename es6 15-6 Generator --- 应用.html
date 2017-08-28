@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Generator --- 应用</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+
+    /////////
+    // 状态机 //
+    /////////
+    {
+        // es5
+        {
+            var ticking = true;
+            var clock = function() {
+                if (ticking)
+                    console.log('Tick!');
+                else
+                    console.log('Tock!');
+                ticking = !ticking;
+            }
+        }
+
+
+        // es6
+        {
+            let clock = function*() {
+                while (true) {
+                    console.log('Tick!');
+                    yield;
+                    console.log('Tock!');
+                    yield;
+                }
+            };
+        }
+    }
+
+
+
+    ////////////////
+    // 异步操作的同步化表达 //
+    ////////////////
+    {
+        function makeAjaxCall(url, fn) { // 模拟ajax请求
+            setTimeout(function() {
+                fn && fn('{"value":"我是结果"}');
+            }, 5000); // 如果这里不用定时器 , 就会报错 Generator is already running
+            // 比如执行了一次next()，在方法里面判断这里处理同步的需求，在同步完成后又执行了一次next()，这一次对JS的单进程来说，就是上一次的next尚未结束，又开始了新的一次next，固然导致出现这个错误的警告。
+        }
+
+        function* main() {
+            let result = yield request("http://some.url"); // 这里是异步操作
+            let val = JSON.parse(result); // 但是由于Generator的原因 , 所以可以写成同步那样
+            console.log(val.value);
+        }
+
+        function request(url) {
+            makeAjaxCall(url, function(response) {
+                it.next(response);
+            });
+        }
+
+        let it = main();
+        it.next();
+    }
+
+
+
+    // end
+    </script>
+</body>
+
+</html>
