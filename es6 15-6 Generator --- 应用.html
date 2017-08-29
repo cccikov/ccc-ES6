@@ -62,7 +62,8 @@
 
         function* main() {
             let result = yield request("http://some.url"); // 这里是异步操作
-            let val = JSON.parse(result); // 但是由于Generator的原因 , 所以可以写成同步那样
+
+            let val = JSON.parse(result); // 以前这些步骤都要在makeAjaxCall的回调函数里面;有了Generator之后 , 可以写成同步那样
             console.log(val.value);
         }
 
@@ -74,6 +75,124 @@
 
         let it = main();
         it.next();
+    }
+
+
+    ///////////
+    // 控制流管理 //
+    ///////////
+    {
+        // 如果有一个多步操作非常耗时，采用回调函数
+
+        {
+            // es5
+            function step1(val, fn) {
+                setTimeout(function() {
+                    console.log("去医院途中", `剩余电量${val}`);
+                    var newValue = val - 14;
+                    fn && fn(newValue);
+                }, 500);
+            }
+
+            function step2(val, fn) {
+                setTimeout(function() {
+                    console.log("挂号并等待", `剩余电量${val}`);
+                    var newValue = val - 45;
+                    fn && fn(newValue);
+                }, 500);
+            }
+
+            function step3(val, fn) {
+                setTimeout(function() {
+                    console.log("就医", `剩余电量${val}`);
+                    var newValue = val - 2;
+                    fn && fn(newValue);
+                }, 500);
+            }
+
+            function step4(val, fn) {
+                setTimeout(function() {
+                    console.log("取药", `剩余电量${val}`);
+                    var newValue = val - 15;
+                    fn && fn(newValue);
+                }, 500);
+            }
+
+
+            /*step1(98, function(value1) {
+
+                step2(value1, function(value2) {
+
+                    step3(value2, function(value3) {
+
+                        step4(value3, function(value4) {
+
+                            console.log("取完药立即走人", "最后剩余电量", value4);
+
+                        });
+
+                    });
+
+                });
+
+            });*/
+        }
+
+        {
+            // es6 promise
+            function promiseFn(fn, ...arg) {
+                var pro = new Promise(function(resolve, reject) {
+                    setTimeout(function() {
+                        fn && fn(...arg);
+                        resolve(arg[0]);
+                    }, 500);
+                })
+                return pro;
+            }
+
+            function step1(val, fn) {
+                var newValue = val - 14;
+                return promiseFn(function(value, cb) {
+                    console.log("去医院途中", `剩余电量${val}`);
+                }, newValue);
+            }
+
+            function step2(val, fn) {
+                var newValue = val - 45;
+                return promiseFn(function(value, cb) {
+                    console.log("挂号并等待", `剩余电量${val}`);
+                }, newValue);
+            }
+
+            function step3(val, fn) {
+                var newValue = val - 2;
+                return promiseFn(function(value, cb) {
+                    console.log("就医", `剩余电量${val}`);
+                }, newValue);
+            }
+
+            function step4(val, fn) {
+                var newValue = val - 15;
+                return promiseFn(function(value, cb) {
+                    console.log("取药", `剩余电量${val}`);
+                }, newValue);
+            }
+
+            Promise.resolve(98)
+                .then(function(result) {
+                    return step1(result)
+                })
+                .then(step2)
+                .then(step3)
+                .then(step4);
+
+        }
+
+
+
+
+
+
     }
 
 
