@@ -150,51 +150,251 @@
                 return pro;
             }
 
-            function step1(val, fn) {
+            function step1(val) {
                 var newValue = val - 14;
                 return promiseFn(function(value, cb) {
                     console.log("去医院途中", `剩余电量${val}`);
                 }, newValue);
             }
 
-            function step2(val, fn) {
+            function step2(val) {
                 var newValue = val - 45;
                 return promiseFn(function(value, cb) {
                     console.log("挂号并等待", `剩余电量${val}`);
                 }, newValue);
             }
 
-            function step3(val, fn) {
+            function step3(val) {
                 var newValue = val - 2;
                 return promiseFn(function(value, cb) {
                     console.log("就医", `剩余电量${val}`);
                 }, newValue);
             }
 
-            function step4(val, fn) {
+            function step4(val) {
                 var newValue = val - 15;
                 return promiseFn(function(value, cb) {
                     console.log("取药", `剩余电量${val}`);
                 }, newValue);
             }
 
-            Promise.resolve(98)
+            /*Promise.resolve(98)
                 .then(function(result) {
                     return step1(result)
                 })
                 .then(step2)
                 .then(step3)
-                .then(step4);
+                .then(step4);*/
+        } {
+            // es6 promise 第二种写法
+            function promiseFn(fn, ...arg) {
+                var pro = new Promise(function(resolve, reject) {
+                    setTimeout(function() {
+                        fn && fn(resolve, ...arg);
+                    }, 500);
+                })
+                return pro;
+            }
 
+            function step1(val) {
+                return promiseFn(function(cb, value) {
+                    console.log("去医院途中", `剩余电量${val}`);
+                    var newValue = val - 14;
+                    cb(newValue);
+                }, val);
+            }
+
+            function step2(val) {
+                return promiseFn(function(cb, value) {
+                    console.log("挂号并等待", `剩余电量${val}`);
+                    var newValue = val - 45;
+                    cb(newValue);
+                }, val);
+            }
+
+            function step3(val) {
+                return promiseFn(function(cb, value) {
+                    console.log("就医", `剩余电量${val}`);
+                    var newValue = val - 2;
+                    cb(newValue);
+                }, val);
+            }
+
+            function step4(val) {
+                return promiseFn(function(cb, value) {
+                    console.log("取药", `剩余电量${val}`);
+                    var newValue = val - 15;
+                    cb(newValue);
+                }, val);
+            }
+
+            /* Promise.resolve(98)
+                 .then(function(result) {
+                     return step1(result)
+                 })
+                 .then(step2)
+                 .then(step3)
+                 .then(step4);*/
         }
 
 
 
+        {
+            // es6 generator
+            function step1(val = 0, fn) {
+                console.log("去医院途中", `剩余电量${val}`);
+                var newValue = val - 14;
+                return newValue;
+            }
+
+            function step2(val = 0, fn) {
+                console.log("挂号并等待", `剩余电量${val}`);
+                var newValue = val - 45;
+                return newValue;
+            }
+
+            function step3(val = 0, fn) {
+                console.log("就医", `剩余电量${val}`);
+                var newValue = val - 2;
+                return newValue;
+            }
+
+            function step4(val = 0, fn) {
+                console.log("取药", `剩余电量${val}`);
+                var newValue = val - 15;
+                return newValue;
+            }
+
+            function* longRunningTask(value1) {
+                try {
+                    var value2 = yield step1(value1);
+                    var value3 = yield step2(value2);
+                    var value4 = yield step3(value3);
+                    var value5 = yield step4(value4);
+                    // Do something with value4
+                } catch (e) {
+                    // Handle any error from step1 through step4
+                }
+            }
+
+            // 用于执行所有步骤。
+            function scheduler(task) {
+                var taskObj = task.next(task.value);
+                // 如果Generator函数未结束，就继续调用
+                if (!taskObj.done) {
+                    task.value = taskObj.value
+                    scheduler(task); // 递归
+                }
+            }
+            // scheduler(longRunningTask(100));
+
+            // 但是 , 会发现上面这种做法，只适合同步操作，即所有的task都必须是同步的，不能有异步操作。因为这里的代码一得到返回值，就继续往下执行，没有判断异步操作何时完成。如果要控制异步的操作流程，详见后面的《异步操作》一章。
 
 
 
+
+
+
+
+            // 如果是同步操作的话 , 可以选择采用一个更加简单的写法
+            let steps = [step1, step2, step3, step4];
+
+            function* iterate_Steps(steps) {
+                for (var i = 0; i < steps.length; i++) {
+                    var step = steps[i];
+                    yield step();
+                }
+            }
+
+            // scheduler(iterate_Steps(steps));
+
+
+
+
+
+
+
+            // 将任务分解成步骤之后，还可以将项目分解成多个依次执行的任务。
+            var job1 = job2 = job3 = {
+                steps: steps
+            }
+            let jobs = [job1, job2, job3];
+
+            function* iterate_Jobs(jobs) { // 注意 两个函数名不是一样的 这一个是Jobs
+                for (var i = 0; i < jobs.length; i++) {
+                    var job = jobs[i];
+                    yield * iterate_Steps(job.steps);
+                }
+            }
+
+            // scheduler(iterate_Jobs(jobs));
+
+
+
+
+
+
+
+
+            // scheduler可以采用以下方法代替
+            /*for (var step of iterate_Jobs(jobs)) {
+                console.log(step);
+            }*/
+
+
+            // for...of的本质是一个while循环，所以上面的代码实质上执行的是下面的逻辑
+            /*var it = iterate_Jobs(jobs);
+            var res = it.next();
+
+            while (!res.done) {
+                var result = res.value;
+                console.log(result);
+                res = it.next();
+            }*/
+
+        }
     }
 
+
+    ////////////////////
+    // 部署 Iterator 接口 //
+    ////////////////////
+    {
+        // 利用 Generator 函数， 可以在任意对象上部署 Iterator 接口。
+        function* iterEntries(obj) {
+            obj = obj || this; // 这样就可以直接写在对象里面 作为 [Symbol.iterator]属性
+            let keys = Object.keys(obj);
+            for (let i = 0; i < keys.length; i++) {
+                let key = keys[i];
+                yield [key, obj[key]];
+            }
+        }
+
+        let myObj = {
+            foo: 3,
+            bar: 7,
+            [Symbol.iterator]: function() {
+                return iterEntries(this)
+            },
+            [Symbol.iterator]: iterEntries
+
+        };
+
+        /*for (let [key, value] of iterEntries(myObj)) {
+            console.log(key, value);
+        }
+
+        for (let value of myObj) {
+            console.log(value);
+        }*/
+    }
+
+
+
+
+    //////////////////////////////////////////////////////////
+    // 个人小结 , Generator 与 Iterator,Promise有较大的联系 , 建议多次结合学习 //
+    //////////////////////////////////////////////////////////
 
 
     // end

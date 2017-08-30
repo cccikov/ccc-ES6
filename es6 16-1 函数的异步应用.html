@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>函数的异步应用</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    function ranInt(max, min) {
+        if (min > max) {
+            var mid = max;
+            max = min;
+            min = mid;
+        }
+        return parseInt(Math.random() * (max - min + 1) + min)
+    }
+
+    /**
+     * ES6 诞生以前，异步编程的方法，大概有下面四种。
+     * 回调函数
+     * 事件监听
+     * 发布/订阅
+     * Promise 对象 (js社区好早实现了)
+     *
+     * Generator 函数将 JavaScript 异步编程带入了一个全新的阶段。
+     */
+
+
+    // 所谓"异步"，简单说就是一个任务不是连续完成的，可以理解成该任务被人为分成两段，先执行第一段，然后转而执行其他任务，等做好了准备，再回过头执行第二段。
+
+    // 比如，有一个任务是读取文件进行处理，任务的第一段是向操作系统发出请求，要求读取文件。然后，程序执行其他任务，等到操作系统返回文件，再接着执行任务的第二段（处理文件）。这种不连续的执行，就叫做异步。
+
+    // 相应地，连续的执行就叫做同步。由于是连续执行，不能插入其他任务，所以操作系统从硬盘读取文件的这段时间，程序只能干等着。
+
+
+    //////////
+    // 回调函数 //
+    //////////
+    {
+        function readFile(path, encoding, cb) {
+            setTimeout(function() {
+                var txt = ["Lorem ipsum dolor sit amet", " consectetur adipisicing elit. Quas quasi molestiae sequi quisquam assumenda", "esse alias ea quod voluptate corrupti? At fugit incidunt consequuntur iste", "Iusto accusantium ad accusamus commodi?"];
+                var index = ranInt(0, 3);
+                var result = txt[index];
+                cb && cb(path, result);
+            }, 1000);
+        }
+
+        /*readFile("c://test.txt", "utf-8", function(a, b) {
+            console.log(`读取了'${a}'的文件 , 得到的文件内容是 :\n"${b}"`);
+        });*/
+
+
+        // 回调函数本身并没有问题，它的问题出现在多个回调函数嵌套。假定读取A文件之后，再读取B文件
+        /*readFile("文件a", "utf-8", function(a, b) {
+            console.log(`读取了 '${a}' 的文件`);
+
+            readFile("文件b", "utf-8", function(a, b) {
+                console.log(`读取了 '${a}' 的文件`);
+
+                readFile("文件c", "utf-8", function(a, b) {
+                    console.log(`读取了 '${a}' 的文件`);
+
+                    readFile("文件d", "utf-8", function(a, b) {
+                        console.log(`读取了 '${a}' 的文件`);
+
+                        readFile("文件e", "utf-8", function(a, b) {
+                            console.log(`读取了 '${a}' 的文件`);
+
+                        });
+                    });
+                });
+            });
+        });*/
+        // 不难想象，如果依次读取两个以上的文件，就会出现多重嵌套。代码不是纵向发展，而是横向发展，很快就会乱成一团，无法管理。因为多个异步操作形成了强耦合，只要有一个操作需要修改，它的上层回调函数和下层回调函数，可能都要跟着修改。这种情况就称为"回调函数地狱"（callback hell）。
+    }
+
+
+    /////////////
+    // Promise //
+    /////////////
+    {
+        function readFile_promise(path) {
+            var pro = new Promise(function(resolve, reject) {
+                setTimeout(function() {
+                    var data = {};
+                    data.path = path;
+                    data.txt = "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Excepturi, minima!";
+                    resolve(data);
+                }, 1000);
+            });
+            return pro;
+        }
+
+
+        readFile_promise("文件1")
+            .then(data => {
+                console.log(`读取了'${data.path}'的文件 , 得到的文件内容是 :\n"${data.txt}"`);
+            }) // 这个返回的resolve状态的没有值的 Promise对象
+
+        .then(data => readFile_promise("文件2"))
+            .then(data => {
+                console.log(`读取了'${data.path}'的文件 , 得到的文件内容是 :\n"${data.txt}"`);
+            })
+
+
+        // 这样就有嵌套变成链式操作 , 修改起来就容易好多 ; 有个缺点就是就会有一堆then , 语义不明显
+    }
+
+
+    //////////////////
+    // Generator 函数 //
+    //////////////////
+    {
+
+    }
+
+    // end
+    </script>
+</body>
+
+</html>
