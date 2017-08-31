@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>函数的异步应用---Thunk函数</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    function show(arr) {
+        console.log("");
+        arr.forEach(function(key, i) {
+            console.log(i + "", key);
+        });
+        console.log("");
+    }
+
+    var fs = {
+        readFile: function(fileName, callback) {
+            setTimeout(function(){
+
+            },1500);
+        }
+    }
+
+
+    /////////////
+    // Thunk函数 //
+    /////////////
+
+    /*Thunk 函数是自动执行 Generator 函数的一种方法。*/
+
+
+    // Thunk 函数的含义
+    {
+        /*编译器的“传名调用”实现，往往是将参数放到一个临时函数之中，再将这个临时函数传入函数体。这个临时函数就叫做 Thunk 函数。*/
+
+        {
+            var x = 3;
+
+            function f(m) {
+                return m * 2;
+            }
+            f(x + 5); // 16
+        }
+
+        // 等同于
+        {
+            var thunk = function() {
+                return x + 5;
+            };
+
+            function f(thunk) {
+                return thunk() * 2;
+            }
+            f(thunk); // 16
+        }
+
+        // 注意 , 上面是某些编译器的运行是这样运行的 , 在JavaScript语言中 , Thunk指的是别的东西
+    }
+
+
+    /*JavaScript 语言的 Thunk 函数，JavaScript 语言是传值调用，它的 Thunk 函数含义有所不同。在 JavaScript 语言中，Thunk 函数替换的不是表达式，而是多参数函数，将其替换成一个只接受回调函数作为参数的单参数函数。*/
+    // end
+    </script>
+</body>
+
+</html>

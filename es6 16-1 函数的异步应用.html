@@ -107,22 +107,117 @@
             .then(data => {
                 console.log(`读取了'${data.path}'的文件 , 得到的文件内容是 :\n"${data.txt}"`);
             }) // 这个返回的resolve状态的没有值的 Promise对象
-
-        .then(data => readFile_promise("文件2"))
+            .then(data => readFile_promise("文件2"))
             .then(data => {
                 console.log(`读取了'${data.path}'的文件 , 得到的文件内容是 :\n"${data.txt}"`);
-            })
+            });
 
 
         // 这样就有嵌套变成链式操作 , 修改起来就容易好多 ; 有个缺点就是就会有一堆then , 语义不明显
     }
 
 
+
+
+
+
     //////////////////
-    // Generator 函数 //
+    // Generator 函数 // ******** 重点
     //////////////////
     {
+        /**
+         * 协程
+         * 协程（coroutine）是一种程序运行的方式，可以理解成“协作的线程”或“协作的函数”。协程既可以用单线程实现，也可以用多线程实现。前者是一种特殊的子例程，后者是一种特殊的线程。
+         *
+         * 传统的编程语言，早有异步编程的解决方案（其实是多任务的解决方案）。其中有一种叫做"协程"（coroutine），意思是多个线程互相协作，完成异步任务。
+         *
+         *
+         * 协程有点像函数，又有点像线程。它的运行流程大致如下。
+         *     第一步，协程A开始执行。
+         *     第二步，协程A执行到一半，进入暂停，执行权转移到协程B。
+         *     第三步，（一段时间后）协程B交还执行权。
+         *     第四步，协程A恢复执行。
+         * 上面流程的协程A，就是异步任务，因为它分成两段（或多段）执行。
+         */
 
+        function* asyncJob() {
+                // ...其他代码
+                var f = yield readFile(fileA);
+                // ...其他代码
+            }
+            // 上面代码的函数asyncJob是一个协程，它的奥妙就在其中的yield命令。它表示执行到此处，执行权将交给其他协程。也就是说，yield命令是异步两个阶段的分界线。
+            // 协程遇到yield命令就暂停，等到执行权返回，再从暂停的地方继续往后执行。它的最大优点，就是代码的写法非常像同步操作，如果去除yield命令，简直一模一样。
+
+
+
+
+        /*Generator 函数可以暂停执行和恢复执行，这是它能封装异步任务的根本原因。*/
+        /*它还有两个特性，使它可以作为异步编程的完整解决方案：函数体内外的数据交换和错误处理机制。*/
+
+
+        // next返回值的value属性，是 Generator 函数向外输出数据；next方法还可以接受参数，向 Generator 函数体内输入数据。
+        {
+            function* gen(x) {
+                var y = yield x + 2;
+                return y;
+            }
+
+            let g = gen(1);
+            show([
+                g.next(), // { value: 3, done: false }
+                g.next(2) // { value: 2, done: true }
+            ]);
+        }
+
+
+
+
+        // Generator 函数内部还可以部署错误处理代码，捕获函数体外抛出的错误。
+        {
+            function* gen(x) {
+                try {
+                    var y = yield x + 2;
+                } catch (e) {
+                    console.error(e);
+                }
+                return y;
+            }
+
+            var g = gen(1);
+            show([
+                g.next(),
+                g.throw('出错了')
+            ]);
+            // 出错了
+        }
+    }
+
+
+    /////////////
+    // Generator 函数 异步任务的封装 //
+    /////////////
+    {
+
+
+        /*
+        var fetch = require('node-fetch');
+        function* gen() {
+            var url = 'https://api.github.com/users/github';
+            var result = yield fetch(url);
+            console.log(result.bio);
+        }
+
+
+        var g = gen();
+        var result = g.next();
+        result.value.then(function(data) { // Fetch模块返回的是一个 Promise 对象
+            return data.json();
+        }).then(function(data) {
+            g.next(data);
+        });
+        */
+
+        // 可以看到，虽然 Generator 函数将异步操作表示得很简洁，但是流程管理却不方便（即何时执行第一阶段、何时执行第二阶段）。
     }
 
     // end
