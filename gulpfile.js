@@ -4,7 +4,7 @@ let reload = browserSync.reload;
 
 
 
-let browserSyncPath = ["web/*.html"]; // 监视同步路径
+let browserSyncPath = ["web/*.html"]; // 监视同步路径 ./web/*.html 多了./的话增加新文件会没有反应
 let browserSyncRootPath = "web";
 let browserSyncIndex = "index.html"; // 服务器启动的时候,默认打开的文件 , 就是在默认路径基础上打开的文件 (虽然要打开的文件web/index.html 由于初始路径是web , 所以在web/路径的基础上打开index.html的意思)
 
