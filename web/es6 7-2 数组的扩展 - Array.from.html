@@ -58,6 +58,12 @@
         const toArray = (() =>
             Array.from ? Array.from : obj => [].slice.call(obj)
         )();
+
+        var toArray2 = (function(){
+            return Array.from ? Array.from : function (arrLike){
+                return [].slice.call(arrLike);
+            }
+        })();
     }
 
     {
