@@ -178,6 +178,7 @@
         });
     }
     // 如果一直没有onFulfilled 或者 onRejected处理 ; 状态和传的值会一直链式传下去 直到被then里面的onFulfilled 或者 onRejected
+    // 上面console.log()返回值是undefined，所以相当于没有onFulfilled回调函数，所以会一直走下去
 
     // catch同理
     {
