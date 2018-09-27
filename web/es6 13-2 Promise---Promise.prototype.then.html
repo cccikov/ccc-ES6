@@ -57,7 +57,11 @@
     // 就是说返回的 Promise对象的状态 不是由这个then的 "onFulfilled回调函数" 还是 "onRejected回调函数" 调用 ; 而是 "onFulfilled回调函数或者onRejected回调函数" 调用时是否发生错误 是否直接返回 "拒绝的 Promise"
     {
         // 例子1
-        function ran(n, flag = true) {
+
+        /**
+         * 异步函数
+         */
+        function ranAsync(n, flag = true) {
             return new Promise(function(resolve, reject) {
                 if (flag) {
                     resolve(n + "次resolve");
@@ -67,23 +71,23 @@
             });
         }
 
-        ran(1, false).then( // 第一个 then
+        ranAsync(1, false).then( // 第一个 then
             success => {
                 console.log("第" + success + "成功");
-                return ran(2);
+                return ranAsync(2); // 调用新的异步函数
             },
             error => {
                 console.log("第" + error + "失败");
-                return ran(2);
+                return ranAsync(2);
             }
         ).then( // 第二个 then
             success => {
                 console.log("第" + success + "成功");
-                return ran(3);
+                return ranAsync(3);
             },
             error => {
                 console.log("第" + error + "失败");
-                return ran(3);
+                return ranAsync(3);
             }
         ).catch( // 第三个 then
             error => {
