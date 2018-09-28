@@ -34,6 +34,13 @@
      * 如果返回值是一个对象{}的时候
      * ([参数1[,参数2,...]]) => (对象返回值)
      * 参数 => (对象返回值)
+     *
+     * render: x => x(App)
+     * render: (x) => x(App)
+     * render: (x) => {return x(App)}
+     * render:function(x){
+        return x(App);
+       }
      */
     {
         var f = v => v;

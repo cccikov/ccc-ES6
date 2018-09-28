@@ -59,7 +59,7 @@
         // 例子1
 
         /**
-         * 异步函数
+         * promise 异步函数
          */
         function ranAsync(n, flag = true) {
             return new Promise(function(resolve, reject) {
@@ -74,7 +74,7 @@
         ranAsync(1, false).then( // 第一个 then
             success => {
                 console.log("第" + success + "成功");
-                return ranAsync(2); // 调用新的异步函数
+                return ranAsync(2); // 调用promise 异步函数
             },
             error => {
                 console.log("第" + error + "失败");
