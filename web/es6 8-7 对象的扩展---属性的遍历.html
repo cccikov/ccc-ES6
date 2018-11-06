@@ -55,6 +55,8 @@
     {
         let arr = []
         for (let i in obj) {
+            console.info("属性",i); // 属性
+            console.info("属性值",obj[i]); // 属性值
             arr.push(i);
         }
         show(arr); // num
@@ -66,7 +68,7 @@
     }
 
     /*2. Object.keys(obj)
-    Object.keys返回一个数组，包括对象自身的（不含继承的）所有可枚举属性（不含 Symbol 属性）。*/
+    Object.keys返回一个数组，包括对象自身的（不含继承的）所有可枚举属性（不含 Symbol 属性）的键名。*/
     {
         let arr = [];
         arr = Object.keys(obj);
