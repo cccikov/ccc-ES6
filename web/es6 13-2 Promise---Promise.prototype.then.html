@@ -106,7 +106,7 @@
         });
         p.then(function(value){
             console.log("例子二",value);
-        }).then(function(value){ // 由于上一个then 里面的  onFulfilled  和 onRejected 都没有返回值 , 即返回任何其他值 , 所以then 返回一个 resolved Promise ; 但是value为undefined
+        }).then(function(value){ // 由于上一个then 里面的  onFulfilled  和 onRejected 都没有返回值 , 属于返回任何其他值 , 所以then 返回一个 resolved Promise ; 但是由于返回值为undefined，value为undefined
             console.log("例子二",value);
         }).then(function(value){ // 理同上
             console.log("例子二",value);
