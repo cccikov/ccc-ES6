@@ -155,11 +155,11 @@
     {
         let p1 = Promise.resolve('foo');
         let p2 = p1
-            .then(console.log("haha1"))
-            .then(console.log("haha2"))
-            .then(console.log("haha3"))
-            .then(console.log("haha4"))
-            .then(console.log("haha5"));
+            .then()
+            .then()
+            .then()
+            .then()
+            .then();
         p2.then(value => {
             console.log("成功", value, p1, p2, p1 == p2);
         }, error => {
@@ -171,10 +171,10 @@
             .then(value => {
                 console.log(value, p1, p2, p1 == p2)
             })
-            .then(console.log("haha2"))
-            .then(console.log("haha3"))
-            .then(console.log("haha4"))
-            .then(console.log("haha5"));
+            .then()
+            .then()
+            .then()
+            .then();
         p2.then(value => {
             console.log("成功", value, p1, p2, p1 == p2);
         }, error => {
@@ -190,10 +190,10 @@
             .then(value => {
                 console.log(value, p1, p2, p1 == p2)
             })
-            .then(console.log("haha2"))
-            .then(console.log("haha3"))
-            .then(console.log("haha4"))
-            .then(console.log("haha5"))
+            .then()
+            .then()
+            .then()
+            .then()
             .catch(error => {
                 console.log("错误", error);
             });
