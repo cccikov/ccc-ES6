@@ -1,35 +1,15 @@
 let gulp = require('gulp');
 let browserSync = require('browser-sync').create();
-let reload = browserSync.reload;
-
-
-
-let browserSyncPath = ["web/*.html"]; // 监视同步路径 ./web/*.html 多了./的话增加新文件会没有反应
-let browserSyncRootPath = "web";
-let browserSyncIndex = "index.html"; // 服务器启动的时候,默认打开的文件 , 就是在默认路径基础上打开的文件 (虽然要打开的文件web/index.html 由于初始路径是web , 所以在web/路径的基础上打开index.html的意思)
-
-
-gulp.task('default', ["browser-sync"], function() {
-    console.log("********\n执行了 browser-sync\n********");
-});
-
 
 /**
- * browser-sync
+ * 静态服务器
  */
-// 静态服务器
-gulp.task('server', function() {
-    browserSync.init({
-        server: browserSyncRootPath
-    });
-});
-
-// 只根据某个(些)文件更新
-gulp.task('browser-sync', function() {
-    browserSync.init({
+function server() {
+    return browserSync.init({
         server: {
-            baseDir: browserSyncRootPath,
-            index: browserSyncIndex
+            baseDir: "./web",
+            index: "/index.html",
+            middleware: []
         },
         port: 5000,
         ui: { // ui的默认端口
@@ -39,8 +19,23 @@ gulp.task('browser-sync', function() {
             }
         }
     });
-    // gulp.watch(browserSyncPath).on("change", reload);
-    gulp.watch(browserSyncPath).on("change", function(event) { // 这个就会比上面那个稍微高级点 , 会显示是哪个文件修改了
-        gulp.src(event.path).pipe(reload({ stream: true }));
+}
+
+/**
+ * 监测 html 变化的时候 reload
+ */
+function reload() {
+    return gulp.watch(["web/*.html"]).on("change", function(event) {
+        console.log(event + " change")
+        try {
+            gulp.src(event).pipe(browserSync.reload({
+                stream: true
+            }));
+        } catch (error) {
+            console.error(error);
+        }
     });
-});
+}
+
+
+exports.default = gulp.series(gulp.parallel(server, reload)); // 默认，直接 npx gulp 运行

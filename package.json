@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/cccikov/ccc-ES6#readme",
   "devDependencies": {
-    "browser-sync": "^2.18.12",
-    "gulp": "^3.9.1"
+    "browser-sync": "^2.26.7",
+    "gulp": "^4.0.2"
   }
 }
