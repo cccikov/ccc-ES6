@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>继承</title>
+</head>
+
+<body>
+    <script type="text/javascript">
+    class Human {
+        constructor() {
+            this.gender = "male or female"
+        }
+        eat() {
+            console.log("吃东西")
+        }
+        walk() {
+            console.log("走")
+        }
+        sleep() {
+            console.log("睡")
+        }
+    }
+
+    class Person extends Human {
+        constructor() {
+            super()
+        }
+    }
+
+    // class People {
+    //     constructor() {
+    //         Human.call(this)
+    //     }
+    // }
+
+    function People(){
+        Human.call(this)
+    }
+
+
+
+    // People.prototype = Object.create(Human.prototype, {
+    //     constructor: {
+    //         value: People
+    //     }
+    // }); // 继承
+
+    // People.prototype = Object.create(Human.prototype)
+    // People.prototype.constructor = People;
+
+    People.prototype = Object.assign(Object.create(Human.prototype),{
+        constructor:People
+    })
+
+    console.log(new Human())
+    console.log(new Person())
+    console.log(new People())
+    </script>
+</body>
+
+</html>
