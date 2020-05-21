@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promise -- then,catch</title>
+</head>
+
+<body>
+    <div>
+        Promise 状态
+        <ul>
+            <li>pending</li>
+            <li>fulfilled（resolved）</li>
+            <li>rejected</li>
+        </ul>
+    </div>
+
+    <div>then(onFulfilled, onRejected)</div>
+
+    <p>fulfilled（resolved） 由 onFulfilled 函数处理</p>
+    <p>rejected 由 onRejected 函数处理</p>
+    <p>pending就不调用，等待转为fulfilled（resolved）或者 rejected才调用then对应的回调函数</p>
+    <p>1. 如果onFulfilled参数不是函数，则会在内部被替换为 (x) => x，即原样返回 promise 最终结果的函数。</p>
+    <p>2. onFulfilled, onRejected返回了一个值，那么 then 返回的 Promise 将会成为接受状态，并且将返回的值作为接受状态的回调函数的参数值。 </p>
+    <p>3. onFulfilled, onRejected没有返回任何值，那么 then 返回的 Promise 将会成为接受状态，并且该接受状态的回调函数的参数值为 undefined。 </p>
+    <p>所以一般axios调用完一个之后，只要不是再次在then里面调用axios（或者其他返回pending状态的Promise实例），后面的then基本都会立即执行</p>
+
+    <script>
+        /*
+         * 返回Promise实例
+         */
+        function promise(flag = true) {
+            return new Promise(function (resolve, reject) {
+                setTimeout(() => {
+                    if (flag) {
+                        resolve("成功"); // fulfillment
+                    } else {
+                        reject("失败"); // reject reason
+                    }
+                }, 1000);
+            });
+        }
+
+        /**
+         * 返回一直pending状态的promise
+         */
+        function pending() {
+            return new Promise(function () { })
+        }
+
+        function colorLog(str) {
+            console.log(`%c---${str}---`, "font-size:20px;color:red")
+        }
+
+        /**
+         * then 返回一个新Promise实例
+         */
+        {
+            colorLog("then 返回一个新Promise实例")
+
+            let p1 = promise();
+            let p2 = p1.then();
+            let p3 = p2.then();
+            console.log(p1, p2, p3);
+            console.log(p1 == p2); // false
+            console.log(p2 == p3); // false
+        }
+
+        {
+            colorLog("then 的 onFulfilled 回调函数没返回值，或者返回一个任何值得时候，后面then立即执行原因。")
+            promise(). //  返回一个未定状态（pending）的 Promise，等待状态变化（这里会返回resolved状态），状态变化就会变成then的状态，返回的value也会传下去
+                then((value) => {
+                    console.log("第1个then", value)
+                    return Promise.resolve() // 返回 resolved 状态，后面then执行
+                }).then((value) => {
+                    console.log("第2个then", value)
+                    return 1 // 返回任何值，变成 resolved 状态，后面then执行
+                }).then((value) => {
+                    console.log("第3个then", value)
+                    // 没返回值，变成 resolved 状态，后面then执行
+                }).then((value) => {
+                    console.log("第4个then", value)
+                    return promise() // 返回一个未定状态（pending）的 Promise，等待状态变化（这里会返回resolved状态），状态变化就会变成then的状态，返回的value也会传下去
+                }).then((value) => {
+                    console.log("第5个then", value)
+                }).then((value) => {
+                    console.log("第6个then", value)
+                    return pending(); // 返回一个未定状态（pending）的 Promise，等待状态变化（这里永远不会变化），所以then返回的Promise值也是pending
+                }).then((value) => {
+                    console.log("第7个then", value)
+                }).then((value) => {
+                    console.log("第8个then", value)
+                })
+
+        }
+
+
+        setTimeout(() => {
+            colorLog("then 的 onFulfilled 回调函数没返回值，或者返回一个任何值得时候，后面then立即执行原因。")
+            let p0 = promise() //  返回一个未定状态（pending）的 Promise，等待状态变化（这里会返回resolved状态），执行对应回调函数
+            let p1 = p0.then((value) => {
+                console.log("第1个then", value)
+                return Promise.resolve() // 返回 resolved 状态，后面then执行
+            })
+            let p2 = p1.then((value) => {
+                console.log("第2个then", value)
+                return 1 // 返回任何值，变成 resolved 状态，后面then执行
+            })
+            let p3 = p2.then((value) => {
+                console.log("第3个then", value)
+                // 没返回值，变成 resolved 状态，后面then执行
+            })
+            let p4 = p3.then((value) => {
+                console.log("第4个then", value)
+                return promise() // 返回一个未定状态（pending）的 Promise，等待状态变化（这里会返回resolved状态），执行对应回调函数
+            })
+            let p5 = p4.then((value) => {
+                console.log("第5个then", value)
+            })
+            let p6 = p5.then((value) => {
+                console.log("第6个then", value)
+                return pending(); // 返回一个未定状态（pending）的 Promise，等待状态变化（这里永远不会变化），执行对应回调函数
+            })
+            let p7 = p6.then((value) => {
+                console.log("第7个then", value)
+            })
+            let p8 = p7.then((value) => {
+                console.log("第8个then", value)
+            })
+
+            console.log("p1", p1);
+            console.log("p2", p1);
+            console.log("p3", p3);
+            console.log("p4", p4);
+            console.log("p5", p5);
+            console.log("p6", p6); // 永远pending
+            console.log("p7", p7); // 永远pending
+            console.log("p8", p8); // 永远pending
+        }, 5 * 1000);
+
+
+
+    </script>
+</body>
+
+</html>
