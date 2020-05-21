@@ -28,7 +28,6 @@
      * 注意事项：如果省略这两个参数，或者提供非函数，那么将创建一个没有其他处理程序的新Promise，只是采用 Promise 的最终状态，then 被调用。如果省略第一个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的完成状态(包括值)，then被调用（如果它变为完成）。如果省略第二个参数或提供的不是函数，创建的新 Promise 简单地采用 Promise 的拒绝状态(包括值)，then被调用（如果它被拒绝）。
 
 
-
         p.then(onFulfilled, onRejected);
 
         p.then(function(value) {
@@ -39,22 +38,38 @@
 
         参数
 
-        then 返回一个由输入函数确定的Promise：
-            如果 onFulfilled  或者 onRejected 抛出一个错误，或者返回一个拒绝的 Promise ，then 返回一个 rejected Promise。
-            如果 onFulfilled  或者 onRejected 返回一个 resolves Promise，或者返回任何其他值，then 返回一个 resolved Promise。
-
         onFulfilled
             一个 Function被调用， 当 Promise 满足时. 该函数有一个参数，即 fulfillment 值。即是Resolved状态的回调函数
+
+            当 Promise 变成接受状态（fulfilled）时调用的函数。该函数有一个参数，即接受的最终结果（the fulfillment  value）。如果该参数不是函数，则会在内部被替换为 (x) => x，即原样返回 promise 最终结果的函数
 
         onRejected
             一个 Function被调用， 当 Promise 被拒绝时. 该函数有一个参数, 拒绝的 reason。即是Rejected状态的回调函数。
 
+            当 Promise 变成接受状态或拒绝状态（rejected）时调用的函数。该函数有一个参数，即拒绝的原因（rejection reason）。  如果该参数不是函数，则会在内部被替换为一个 "Thrower" 函数 (it throws an error it received as argument)。
+
         返回值
             一个 Promise.
             then方法返回的是一个新的Promise实例（注意，不是原来那个Promise实例）。因此可以采用链式写法，即then方法后面再调用另一个then方法。
+
+            then 返回一个由输入函数确定的Promise：
+            如果 onFulfilled  或者 onRejected 抛出一个错误，或者返回一个拒绝的 Promise ，then 返回一个 rejected Promise。
+            如果 onFulfilled  或者 onRejected 返回一个 resolves Promise，或者返回任何其他值，then 返回一个 resolved Promise。
+
+
+        onFulfilled或者onRejected是一个函数，且被调用时，返回值对then返回值的影响。
+        当一个 Promise 完成（fulfilled）或者失败（rejected）时，返回函数将被异步调用（由当前的线程循环来调度完成）。具体的返回值依据以下规则返回。如果 then 中的回调函数（onFulfilled或者onRejected）：
+
+            1. 返回了一个值，那么 then 返回的 Promise 将会成为接受状态，并且将返回的值作为接受状态的回调函数的参数值。
+            2. 没有返回任何值，那么 then 返回的 Promise 将会成为接受状态，并且该接受状态的回调函数的参数值为 undefined。
+            3. 抛出一个错误，那么 then 返回的 Promise 将会成为拒绝状态，并且将抛出的错误作为拒绝状态的回调函数的参数值。
+            4. 返回一个已经是接受状态的 Promise，那么 then 返回的 Promise 也会成为接受状态，并且将那个 Promise 的接受状态的回调函数的参数值作为该被返回的Promise的接受状态回调函数的参数值。
+            5. 返回一个已经是拒绝状态的 Promise，那么 then 返回的 Promise 也会成为拒绝状态，并且将那个 Promise 的拒绝状态的回调函数的参数值作为该被返回的Promise的拒绝状态回调函数的参数值。
+            6. 返回一个未定状态（pending）的 Promise，那么 then 返回 Promise 的状态也是未定的，并且它的终态与那个 Promise 的终态相同；同时，它变为终态时调用的回调函数参数与那个 Promise 变为终态时的回调函数的参数是相同的。
+
      */
 
-    // 就是说返回的 Promise对象的状态 不是由这个then的 "onFulfilled回调函数" 还是 "onRejected回调函数" 调用 ; 而是 "onFulfilled回调函数或者onRejected回调函数" 调用时是否发生错误 是否直接返回 "拒绝的 Promise"
+    // 就是说then返回的 Promise对象的状态 不是由这个then的 "onFulfilled回调函数" 还是 "onRejected回调函数" 调用决定 ; 而是 "onFulfilled回调函数或者onRejected回调函数" 调用时是否发生错误决定 是否直接返回 "拒绝的 Promise"
     {
         // 例子1
 
@@ -104,12 +119,12 @@
         let p = new Promise(function(resolve, reject) {
             resolve("成功了");
         });
-        p.then(function(value){
-            console.log("例子二",value);
-        }).then(function(value){ // 由于上一个then 里面的  onFulfilled  和 onRejected 都没有返回值 , 属于返回任何其他值 , 所以then 返回一个 resolved Promise ; 但是由于返回值为undefined，value为undefined
-            console.log("例子二",value);
-        }).then(function(value){ // 理同上
-            console.log("例子二",value);
+        p.then(function(value) {
+            console.log("例子二", value);
+        }).then(function(value) { // 由于上一个then 里面的  onFulfilled  和 onRejected 都没有返回值 , 属于返回任何其他值 , 所以then 返回一个 resolved Promise ; 但是由于返回值为undefined，value为undefined
+            console.log("例子二", value);
+        }).then(function(value) { // 理同上
+            console.log("例子二", value);
         });
 
     }
