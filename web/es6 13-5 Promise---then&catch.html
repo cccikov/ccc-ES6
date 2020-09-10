@@ -12,21 +12,32 @@
         Promise 状态
         <ul>
             <li>pending</li>
-            <li>fulfilled（resolved）</li>
-            <li>rejected</li>
+            <li>fulfilled（resolved） 接受状态</li>
+            <li>rejected 拒绝状态</li>
         </ul>
     </div>
 
     <div>then(onFulfilled, onRejected)</div>
 
+    <!-- Promise 关键 -->
     <p>fulfilled（resolved） 由 onFulfilled 函数处理</p>
     <p>rejected 由 onRejected 函数处理</p>
     <p>pending就不调用，等待转为fulfilled（resolved）或者 rejected才调用then对应的回调函数</p>
+
+    <!-- then里面不是返回 Promise实例的时候 -->
     <p>1. 如果onFulfilled参数不是函数，则会在内部被替换为 (x) => x，即原样返回 promise 最终结果的函数。</p>
     <p>2. onFulfilled, onRejected返回了一个值，那么 then 返回的 Promise 将会成为接受状态，并且将返回的值作为接受状态的回调函数的参数值。 </p>
     <p>3. onFulfilled, onRejected没有返回任何值，那么 then 返回的 Promise 将会成为接受状态，并且该接受状态的回调函数的参数值为 undefined。 </p>
-    <p>所以一般axios调用完一个之后，只要不是再次在then里面调用axios（或者其他返回pending状态的Promise实例），后面的then基本都会立即执行</p>
-    <p>所以不一定要返回 Promise 实例，或者Promise.resolve()，后面的then也会调用</p>
+    <!-- https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/then -->
+
+    <p>所以一般axios调用完一个之后，只要不是再次在then里面返回axios（或者其他返回pending状态的Promise实例），后面的then基本都会立即执行</p>
+
+    <!-- ps：async的时候 -->
+    <p>
+        async函数 Promise 对象的状态变化。
+        async函数返回的 Promise 对象，必须等到内部所有await命令后面的 Promise
+        对象执行完，才会发生状态改变，除非遇到return语句或者抛出错误。也就是说，只有async函数内部的异步操作执行完，才会执行then方法指定的回调函数。
+    </p>
 
     <script>
         /*
