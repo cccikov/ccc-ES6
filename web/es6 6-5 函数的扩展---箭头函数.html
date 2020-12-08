@@ -17,8 +17,10 @@
     }
 
 
+
+
     /**
-     * 箭头函数
+     * 箭头函数（自己总结）
      *
      * ES6 允许使用“箭头”（=>）定义函数。
      *
@@ -41,6 +43,27 @@
      * render:function(x){
         return x(App);
        }
+     */
+
+
+
+     /*
+
+        (param1, param2, …, paramN) => { statements }
+        (param1, param2, …, paramN) => expression
+        //相当于：(param1, param2, …, paramN) =>{ return expression; }
+
+
+        // 当只有一个参数时，圆括号是可选的：
+        (singleParam) => { statements }
+        singleParam => { statements }
+
+
+        // 没有参数的函数应该写成一对圆括号。
+        () => { statements }
+
+
+        https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Arrow_functions
      */
     {
         var f = v => v;

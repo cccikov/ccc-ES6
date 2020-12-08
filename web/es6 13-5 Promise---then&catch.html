@@ -25,7 +25,7 @@
     <p>pending就不调用，等待转为fulfilled（resolved）或者 rejected才调用then对应的回调函数</p>
 
     <!-- then里面不是返回 Promise实例的时候 -->
-    <p>1. 如果onFulfilled参数不是函数，则会在内部被替换为 (x) => x，即原样返回 promise 最终结果的函数。</p>
+    <p>1. 如果 onFulfilled 参数不是函数，则会在内部被替换为 (x) => x，即原样返回 promise 最终结果的函数。</p>
     <p>2. onFulfilled, onRejected返回了一个值，那么 then 返回的 Promise 将会成为接受状态，并且将返回的值作为接受状态的回调函数的参数值。 </p>
     <p>3. onFulfilled, onRejected没有返回任何值，那么 then 返回的 Promise 将会成为接受状态，并且该接受状态的回调函数的参数值为 undefined。 </p>
     <!-- https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/then -->
