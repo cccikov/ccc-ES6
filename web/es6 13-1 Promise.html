@@ -53,7 +53,7 @@
                     reject("失败了!!");
                 }
             }, 16.7);
-        });
+        }); // promise实例
         myFirstPromise.then(function(successMessage) {
             //successMessage的值是上面调用resolve(...)方法传入的值.
             //successMessage参数不一定非要是字符串类型，这里只是举个例子
@@ -74,7 +74,7 @@
             return new Promise((resolve, reject) => {
                 setTimeout(resolve, ms, 'done');
             });
-        }
+        } // 函数执行后返回一个Promise实例；要区分好Promise实例（后面可以跟then），以及返回Promise实例的函数区别(执行后返回的promise实例才能跟then)
         timeout(100).then((value) => {
             console.log(value);
         }); // done
